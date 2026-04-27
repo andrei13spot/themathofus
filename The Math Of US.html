@@ -1647,6 +1647,12 @@
     let saveTimer = null;
     let isHydrating = false;
     const animatedValues = {};
+    const SHOW_SYNC_PANEL = false;
+    const DEFAULT_SUPABASE_CONFIG = {
+      url: "https://wvknqiljvclrrspqhqmf.supabase.co",
+      anonKey: "sb_publishable_HfrME6xLGS_t8GXinI0_iA_7E9tlZvb",
+      householdId: "the-math-of-us"
+    };
 
     // ============ HELPERS ============
     const $ = (id) => document.getElementById(id);
@@ -2147,12 +2153,18 @@
     }
 
     // ============ SUPABASE ============
-    function setSyncStatus(msg) { $("syncStatus").textContent = `Sync status: ${msg}`; }
+    function setSyncStatus(msg) {
+      const statusEl = $("syncStatus");
+      if (statusEl) statusEl.textContent = `Sync status: ${msg}`;
+    }
     function getSupabaseSettings() {
+      const urlInput = $("sbUrl");
+      const keyInput = $("sbAnonKey");
+      const householdInput = $("householdId");
       return {
-        url: ($("sbUrl").value || "").trim(),
-        anonKey: ($("sbAnonKey").value || "").trim(),
-        householdId: ($("householdId").value || "").trim()
+        url: ((urlInput && urlInput.value) || DEFAULT_SUPABASE_CONFIG.url || "").trim(),
+        anonKey: ((keyInput && keyInput.value) || DEFAULT_SUPABASE_CONFIG.anonKey || "").trim(),
+        householdId: ((householdInput && householdInput.value) || DEFAULT_SUPABASE_CONFIG.householdId || "").trim()
       };
     }
     function saveSupabaseSettingsLocally() {
@@ -2163,10 +2175,17 @@
       if (!raw) return;
       try {
         const cfg = JSON.parse(raw);
-        $("sbUrl").value = cfg.url || "";
-        $("sbAnonKey").value = cfg.anonKey || "";
-        $("householdId").value = cfg.householdId || "";
+        const urlInput = $("sbUrl");
+        const keyInput = $("sbAnonKey");
+        const householdInput = $("householdId");
+        if (urlInput) urlInput.value = cfg.url || "";
+        if (keyInput) keyInput.value = cfg.anonKey || "";
+        if (householdInput) householdInput.value = cfg.householdId || "";
       } catch (_) {}
+    }
+    function hasSupabaseSettings() {
+      const cfg = getSupabaseSettings();
+      return !!(cfg.url && cfg.anonKey && cfg.householdId);
     }
     async function connectSupabase() {
       if (!window.supabase || !window.supabase.createClient) { setSyncStatus("Supabase library failed to load."); return; }
@@ -2276,7 +2295,13 @@
       renderRows("fixedRows", fixedDefaults, "fixed");
       renderRows("variableRows", variableDefaults, "var");
       bindInputs();
+      if (!SHOW_SYNC_PANEL) {
+        document.querySelector(".sync-section")?.remove();
+      }
       loadSupabaseSettingsLocally();
+      if (hasSupabaseSettings()) {
+        await connectSupabase();
+      }
       await loadMonthData();
       updateTimeline();
       updateAll();
