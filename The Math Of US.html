@@ -1,0 +1,2290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Andrei & Erielle — Household</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600;700;800&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #000000;
+      --bg-elevated: #0a0a0a;
+      --surface: #111111;
+      --surface-2: #1a1a1a;
+      --surface-3: #222222;
+      --text: #f5f5f7;
+      --text-secondary: #a1a1a6;
+      --text-tertiary: #6e6e73;
+      --border: rgba(255, 255, 255, 0.08);
+      --border-strong: rgba(255, 255, 255, 0.16);
+      --accent: #0a84ff;
+      --accent-hover: #409cff;
+      --good: #30d158;
+      --bad: #ff453a;
+      --warn: #ff9f0a;
+
+      /* Dog colors */
+      --chuwi: #ff6482;   /* warm pink */
+      --haru: #ffd60a;    /* sunny gold */
+      --milo: #64d2ff;    /* sky blue */
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: "Inter", -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      min-height: 100vh;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+      letter-spacing: -0.011em;
+    }
+
+    /* ============ INTERACTIVE BACKGROUND ============ */
+    .bg-mesh {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      overflow: hidden;
+    }
+    .mesh-orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(80px);
+      opacity: 0.5;
+      will-change: transform;
+      transition: transform 0.8s cubic-bezier(.22,1,.36,1);
+    }
+    .mesh-orb.chuwi {
+      width: 480px; height: 480px;
+      background: radial-gradient(circle, var(--chuwi) 0%, transparent 70%);
+      top: -10%; left: -10%;
+    }
+    .mesh-orb.haru {
+      width: 520px; height: 520px;
+      background: radial-gradient(circle, var(--haru) 0%, transparent 70%);
+      top: 30%; right: -15%;
+      opacity: 0.3;
+    }
+    .mesh-orb.milo {
+      width: 560px; height: 560px;
+      background: radial-gradient(circle, var(--milo) 0%, transparent 70%);
+      bottom: -20%; left: 30%;
+      opacity: 0.35;
+    }
+
+    /* Constellation paws — subtle, scattered */
+    .paw-layer {
+      position: fixed;
+      inset: 0;
+      z-index: 1;
+      pointer-events: none;
+    }
+    .paw {
+      position: absolute;
+      width: 24px;
+      height: 24px;
+      opacity: 0;
+      animation: pawFade 12s ease-in-out infinite;
+    }
+    .paw svg { width: 100%; height: 100%; }
+    @keyframes pawFade {
+      0%, 100% { opacity: 0; transform: translateY(0) scale(0.8); }
+      50% { opacity: 0.18; transform: translateY(-4px) scale(1); }
+    }
+
+    /* Noise overlay for depth */
+    body::after {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 2;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' /%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.05 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+      opacity: 0.4;
+      mix-blend-mode: overlay;
+    }
+
+    /* ============ NAV BAR — Apple style ============ */
+    .navbar {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      background: rgba(0, 0, 0, 0.72);
+      backdrop-filter: saturate(180%) blur(20px);
+      -webkit-backdrop-filter: saturate(180%) blur(20px);
+      border-bottom: 1px solid var(--border);
+      transition: all 0.3s ease;
+    }
+    .navbar-inner {
+      max-width: 1024px;
+      margin: 0 auto;
+      padding: 0 22px;
+      height: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .nav-brand {
+      font-size: 1.1rem;
+      font-weight: 500;
+      letter-spacing: -0.02em;
+      color: var(--text);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .nav-brand-icon {
+      width: 22px; height: 22px;
+      display: grid;
+      place-items: center;
+      font-size: 1rem;
+    }
+    .nav-links {
+      display: flex;
+      gap: 0;
+      list-style: none;
+    }
+    .nav-links a {
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 0.78rem;
+      font-weight: 400;
+      padding: 8px 14px;
+      border-radius: 14px;
+      transition: all 0.25s ease;
+    }
+    .nav-links a:hover {
+      color: var(--text);
+      background: var(--surface-2);
+    }
+    .nav-links a.active {
+      color: var(--text);
+      background: var(--surface-3);
+    }
+    @media (max-width: 640px) {
+      .nav-links a { padding: 8px 10px; font-size: 0.72rem; }
+    }
+
+    /* ============ LOADER ============ */
+    .loader {
+      position: fixed; inset: 0;
+      background: var(--bg);
+      display: grid;
+      place-items: center;
+      z-index: 2000;
+      transition: opacity 0.6s ease, visibility 0.6s ease;
+    }
+    .loader-paw {
+      width: 48px; height: 48px;
+      animation: pawBounce 1.2s ease-in-out infinite;
+    }
+    @keyframes pawBounce {
+      0%, 100% { transform: translateY(0) scale(1); }
+      50% { transform: translateY(-12px) scale(1.05); }
+    }
+    .loader.hidden { opacity: 0; visibility: hidden; }
+
+    /* ============ CONTAINER ============ */
+    .container {
+      max-width: 1024px;
+      margin: 0 auto;
+      padding: 0 22px;
+      position: relative;
+      z-index: 3;
+    }
+
+    /* ============ HERO ============ */
+    .hero {
+      padding: 140px 0 80px;
+      text-align: center;
+    }
+    .hero-eyebrow {
+      font-size: 0.78rem;
+      font-weight: 500;
+      letter-spacing: 0.02em;
+      color: var(--text-secondary);
+      margin-bottom: 18px;
+    }
+    .hero-eyebrow span { color: var(--text); font-weight: 600; }
+    .hero h1 {
+      font-size: clamp(3rem, 8vw, 5.5rem);
+      font-weight: 600;
+      letter-spacing: -0.04em;
+      line-height: 1.04;
+      margin-bottom: 16px;
+      background: linear-gradient(180deg, #fff 0%, #a8a8b0 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+    .hero h1 em {
+      font-family: "Instrument Serif", serif;
+      font-style: italic;
+      font-weight: 400;
+      background: linear-gradient(135deg, var(--chuwi), var(--haru), var(--milo));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      padding: 0 4px;
+    }
+    .hero-sub {
+      font-size: clamp(1.1rem, 2.4vw, 1.45rem);
+      font-weight: 400;
+      color: var(--text-secondary);
+      max-width: 620px;
+      margin: 0 auto 28px;
+      line-height: 1.4;
+      letter-spacing: -0.015em;
+    }
+    .hero-meta {
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+      align-items: center;
+      flex-wrap: wrap;
+      font-size: 0.85rem;
+      color: var(--text-tertiary);
+    }
+    .hero-meta a {
+      color: var(--accent);
+      text-decoration: none;
+      transition: color 0.2s ease;
+    }
+    .hero-meta a:hover { color: var(--accent-hover); }
+    .hero-divider { color: var(--text-tertiary); }
+
+    /* ============ DOG BAR — the family ============ */
+    .dog-bar {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 24px;
+      margin: 56px 0 32px;
+      flex-wrap: wrap;
+    }
+    .dog-card {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 8px 18px 8px 8px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 100px;
+      transition: all 0.3s cubic-bezier(.22,1,.36,1);
+      cursor: pointer;
+    }
+    .dog-card:hover {
+      transform: translateY(-2px);
+      border-color: var(--border-strong);
+      background: var(--surface-2);
+    }
+    .dog-avatar {
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      font-size: 1.2rem;
+      flex-shrink: 0;
+      transition: transform 0.3s cubic-bezier(.5,1.6,.4,1);
+    }
+    .dog-card:hover .dog-avatar { transform: scale(1.15) rotate(-8deg); }
+    .dog-card[data-dog="chuwi"] .dog-avatar { background: linear-gradient(135deg, var(--chuwi), #ff8aa1); }
+    .dog-card[data-dog="haru"] .dog-avatar { background: linear-gradient(135deg, var(--haru), #ffe55c); }
+    .dog-card[data-dog="milo"] .dog-avatar { background: linear-gradient(135deg, var(--milo), #8de0ff); }
+    .dog-name {
+      font-size: 0.92rem;
+      font-weight: 600;
+      color: var(--text);
+      letter-spacing: -0.01em;
+    }
+    .dog-role {
+      display: block;
+      font-size: 0.7rem;
+      font-weight: 400;
+      color: var(--text-tertiary);
+      letter-spacing: 0;
+    }
+
+    /* ============ SECTION ============ */
+    .section {
+      padding: 80px 0;
+      position: relative;
+      scroll-margin-top: 60px;
+    }
+    .section-eyebrow {
+      font-size: 0.78rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .section-eyebrow.chuwi { color: var(--chuwi); }
+    .section-eyebrow.haru { color: var(--haru); }
+    .section-eyebrow.milo { color: var(--milo); }
+    .section-eyebrow .dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: currentColor;
+      box-shadow: 0 0 12px currentColor;
+    }
+    .section-title {
+      font-size: clamp(2rem, 4.5vw, 3.2rem);
+      font-weight: 600;
+      letter-spacing: -0.03em;
+      line-height: 1.05;
+      margin-bottom: 14px;
+      max-width: 720px;
+    }
+    .section-title em {
+      font-family: "Instrument Serif", serif;
+      font-style: italic;
+      font-weight: 400;
+      color: var(--text-secondary);
+    }
+    .section-sub {
+      font-size: 1.1rem;
+      color: var(--text-secondary);
+      max-width: 560px;
+      margin-bottom: 40px;
+      line-height: 1.45;
+    }
+
+    /* ============ HEADLINE FIGURE — like Apple's spec callouts ============ */
+    .headline-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 28px;
+      padding: 60px 48px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+      margin-bottom: 24px;
+    }
+    .headline-card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at center top, rgba(10, 132, 255, 0.08), transparent 60%);
+      pointer-events: none;
+    }
+    .headline-card-label {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      margin-bottom: 16px;
+      font-weight: 500;
+      position: relative;
+    }
+    .headline-card-value {
+      font-size: clamp(3.5rem, 9vw, 6.5rem);
+      font-weight: 700;
+      letter-spacing: -0.04em;
+      line-height: 1;
+      margin-bottom: 20px;
+      position: relative;
+      font-variant-numeric: tabular-nums;
+    }
+    .headline-card-value.positive {
+      background: linear-gradient(135deg, #30d158, #50e078);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+    .headline-card-value.negative {
+      background: linear-gradient(135deg, #ff453a, #ff7166);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+    .headline-card-sub {
+      font-size: 1.05rem;
+      color: var(--text-secondary);
+      font-style: italic;
+      font-family: "Instrument Serif", serif;
+      font-weight: 400;
+      position: relative;
+      max-width: 520px;
+      margin: 0 auto;
+    }
+    .month-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 28px;
+      padding: 6px 6px 6px 16px;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 100px;
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      position: relative;
+    }
+    .month-pill select {
+      background: var(--surface-3);
+      color: var(--text);
+      border: none;
+      padding: 6px 28px 6px 12px;
+      border-radius: 100px;
+      font-family: inherit;
+      font-size: 0.85rem;
+      cursor: pointer;
+      appearance: none;
+      -webkit-appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 10 10'%3E%3Cpath d='M2 4l3 3 3-3' stroke='%23a1a1a6' fill='none' stroke-width='1.4'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 10px center;
+      transition: background-color 0.2s ease;
+    }
+    .month-pill select:focus, .month-pill select:hover {
+      outline: none;
+      background-color: rgba(255,255,255,0.08);
+    }
+    .month-pill select option {
+      background: #0b1512;
+      color: #f5f7f6;
+    }
+
+    /* ============ STAT GRID ============ */
+    .stat-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+    @media (max-width: 700px) { .stat-grid { grid-template-columns: 1fr; } }
+    .stat {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 28px;
+      transition: all 0.3s ease;
+    }
+    .stat:hover { background: var(--surface-2); border-color: var(--border-strong); }
+    .stat-label {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      margin-bottom: 10px;
+      font-weight: 500;
+    }
+    .stat-value {
+      font-size: 2rem;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      font-variant-numeric: tabular-nums;
+      line-height: 1.1;
+    }
+
+    /* ============ FLOW VISUALIZATION ============ */
+    .viz-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 28px;
+      padding: 40px;
+      overflow: hidden;
+    }
+    @media (max-width: 700px) { .viz-card { padding: 24px; } }
+    .viz-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 32px;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .viz-title {
+      font-size: 1.4rem;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+    }
+    .viz-meta {
+      font-size: 0.78rem;
+      color: var(--text-tertiary);
+      letter-spacing: 0.02em;
+    }
+    #flowChart {
+      width: 100%;
+      height: 320px;
+      display: block;
+      margin-bottom: 32px;
+    }
+    @media (max-width: 700px) { #flowChart { height: 260px; } }
+
+    /* Composition bar — clean Apple-style */
+    .comp-bar {
+      display: flex;
+      width: 100%;
+      height: 8px;
+      border-radius: 100px;
+      overflow: hidden;
+      margin-bottom: 20px;
+      background: var(--surface-3);
+    }
+    .comp-seg { transition: flex-basis 0.6s cubic-bezier(.22,1,.36,1); min-width: 0; }
+    .comp-seg.fixed { background: var(--accent); }
+    .comp-seg.variable { background: var(--warn); }
+    .comp-seg.remaining { background: var(--good); }
+    .comp-seg.shortfall { background: var(--bad); }
+
+    .comp-legend {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 16px;
+    }
+    .comp-item {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .comp-item-label {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .comp-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+    }
+    .comp-dot.fixed { background: var(--accent); }
+    .comp-dot.variable { background: var(--warn); }
+    .comp-dot.remaining { background: var(--good); }
+    .comp-dot.shortfall { background: var(--bad); }
+    .comp-item-value {
+      font-size: 1.2rem;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+      font-variant-numeric: tabular-nums;
+    }
+    .comp-item-pct {
+      font-size: 0.75rem;
+      color: var(--text-tertiary);
+    }
+
+    /* ============ INCOME ============ */
+    .income-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+    @media (max-width: 700px) { .income-grid { grid-template-columns: 1fr; } }
+    .earner {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 32px;
+      position: relative;
+      overflow: hidden;
+    }
+    .earner::before {
+      content: "";
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 2px;
+      background: linear-gradient(90deg, var(--accent), transparent);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    .earner:hover::before { opacity: 1; }
+    .earner:hover { border-color: var(--border-strong); }
+    .earner-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 24px;
+    }
+    .earner-name {
+      font-size: 1.6rem;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+    }
+    .earner-tag {
+      font-size: 0.72rem;
+      color: var(--text-tertiary);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+    .week-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 8px;
+      margin-bottom: 20px;
+    }
+    @media (max-width: 600px) { .week-grid { grid-template-columns: repeat(3, 1fr); } }
+    .week {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .week label {
+      font-size: 0.7rem;
+      color: var(--text-tertiary);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      text-align: center;
+    }
+    .week input {
+      width: 100%;
+      padding: 10px 6px;
+      border: 1px solid var(--border);
+      background: var(--surface-2);
+      color: var(--text);
+      border-radius: 10px;
+      font-size: 0.92rem;
+      font-weight: 500;
+      text-align: center;
+      font-variant-numeric: tabular-nums;
+      transition: all 0.2s ease;
+    }
+    .week input:focus {
+      outline: none;
+      border-color: var(--accent);
+      background: var(--surface-3);
+      box-shadow: 0 0 0 3px rgba(10, 132, 255, 0.15);
+    }
+    .earner-total {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      padding-top: 16px;
+      border-top: 1px solid var(--border);
+    }
+    .earner-total-label {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+    }
+    .earner-total-value {
+      font-size: 1.6rem;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      font-variant-numeric: tabular-nums;
+    }
+    .combined {
+      background: linear-gradient(135deg, var(--surface-2), var(--surface));
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 24px 32px;
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .combined-label {
+      font-size: 0.95rem;
+      color: var(--text-secondary);
+      font-weight: 500;
+    }
+    .combined-value {
+      font-size: 2rem;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* ============ EXPENSES ============ */
+    .ledger-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    @media (max-width: 820px) { .ledger-grid { grid-template-columns: 1fr; } }
+    .ledger {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      overflow: hidden;
+    }
+    .ledger-head {
+      padding: 24px 28px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+    }
+    .ledger-title {
+      font-size: 1.2rem;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+    }
+    .ledger-total {
+      font-size: 1.15rem;
+      font-weight: 600;
+      color: var(--accent);
+      font-variant-numeric: tabular-nums;
+    }
+    .expense-row {
+      display: grid;
+      grid-template-columns: 1fr auto auto;
+      align-items: center;
+      gap: 14px;
+      padding: 14px 28px;
+      border-bottom: 1px solid var(--border);
+      transition: background 0.15s ease;
+    }
+    .expense-row:last-child { border-bottom: none; }
+    .expense-row:hover { background: var(--surface-2); }
+    .expense-info { min-width: 0; }
+    .expense-name {
+      font-size: 0.95rem;
+      font-weight: 500;
+      color: var(--text);
+    }
+    .expense-due {
+      display: block;
+      font-size: 0.72rem;
+      color: var(--text-tertiary);
+      margin-top: 2px;
+    }
+    .expense-row input[type="number"] {
+      width: 110px;
+      padding: 8px 12px;
+      border: 1px solid var(--border);
+      background: var(--surface-2);
+      color: var(--text);
+      border-radius: 10px;
+      font-size: 0.9rem;
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+      transition: all 0.2s ease;
+    }
+    .expense-row input[type="number"]:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(10, 132, 255, 0.15);
+    }
+    .expense-row.paid .expense-name { text-decoration: line-through; color: var(--text-tertiary); }
+    .expense-row.paid input[type="number"] { color: var(--text-tertiary); }
+
+    /* iOS-style toggle */
+    .paid-toggle {
+      width: 44px; height: 26px;
+      background: var(--surface-3);
+      border-radius: 100px;
+      position: relative;
+      cursor: pointer;
+      transition: background 0.2s ease;
+      flex-shrink: 0;
+    }
+    .paid-toggle input {
+      position: absolute;
+      opacity: 0;
+      width: 100%; height: 100%;
+      cursor: pointer;
+      margin: 0;
+    }
+    .paid-toggle::after {
+      content: "";
+      position: absolute;
+      top: 2px; left: 2px;
+      width: 22px; height: 22px;
+      background: #fff;
+      border-radius: 50%;
+      transition: transform 0.25s cubic-bezier(.22,1,.36,1);
+      box-shadow: 0 2px 4px rgba(0,0,0,0.4);
+    }
+    .paid-toggle.checked { background: var(--good); }
+    .paid-toggle.checked::after { transform: translateX(18px); }
+
+    /* ============ GOALS ============ */
+    .goals-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 28px;
+      padding: 40px;
+    }
+    @media (max-width: 700px) { .goals-card { padding: 24px; } }
+    .goals-controls {
+      display: grid;
+      grid-template-columns: 1.5fr 1fr;
+      gap: 20px;
+      padding-bottom: 32px;
+      margin-bottom: 32px;
+      border-bottom: 1px solid var(--border);
+    }
+    @media (max-width: 700px) { .goals-controls { grid-template-columns: 1fr; } }
+    .field-label {
+      display: block;
+      font-size: 0.78rem;
+      color: var(--text-secondary);
+      margin-bottom: 8px;
+      font-weight: 500;
+    }
+    .field-input {
+      width: 100%;
+      padding: 14px 16px;
+      border: 1px solid var(--border);
+      background: var(--surface-2);
+      color: var(--text);
+      border-radius: 14px;
+      font-size: 1.05rem;
+      font-weight: 500;
+      font-variant-numeric: tabular-nums;
+      transition: all 0.2s ease;
+      font-family: inherit;
+    }
+    .field-input:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(10, 132, 255, 0.15);
+    }
+    .field-input[readonly] {
+      background: var(--bg);
+      color: var(--text-secondary);
+      cursor: not-allowed;
+    }
+    .unallocated {
+      margin-top: 10px;
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      font-style: italic;
+      font-family: "Instrument Serif", serif;
+      font-weight: 400;
+    }
+
+    /* iOS toggle for auto-distribute */
+    .ios-toggle-wrap {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 14px 18px;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .ios-toggle-wrap:hover { background: var(--surface-3); }
+    .ios-toggle-wrap input { display: none; }
+    .ios-toggle-text {
+      font-size: 0.95rem;
+      font-weight: 500;
+      flex: 1;
+    }
+    .ios-toggle-text small {
+      display: block;
+      font-size: 0.75rem;
+      color: var(--text-tertiary);
+      font-weight: 400;
+      margin-top: 2px;
+    }
+
+    /* Allocation sliders */
+    .alloc-sliders {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+      padding-bottom: 32px;
+      margin-bottom: 32px;
+      border-bottom: 1px solid var(--border);
+    }
+    .alloc-slider label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.78rem;
+      color: var(--text-secondary);
+      margin-bottom: 12px;
+    }
+    .alloc-pct {
+      color: var(--text);
+      font-weight: 600;
+      font-variant-numeric: tabular-nums;
+    }
+    .alloc-slider input[type="range"] {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 100%;
+      height: 4px;
+      border-radius: 100px;
+      background: var(--surface-3);
+      outline: none;
+    }
+    .alloc-slider input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 22px; height: 22px;
+      border-radius: 50%;
+      background: #fff;
+      cursor: pointer;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+      transition: transform 0.15s ease;
+    }
+    .alloc-slider input[type="range"]::-webkit-slider-thumb:hover {
+      transform: scale(1.15);
+    }
+    .alloc-slider input[type="range"]::-moz-range-thumb {
+      width: 22px; height: 22px;
+      border-radius: 50%;
+      background: #fff;
+      cursor: pointer;
+      border: none;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+    }
+
+    /* Goal items */
+    .goal-list { display: grid; gap: 32px; }
+    .goal-item {
+      display: grid;
+      gap: 12px;
+    }
+    .goal-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 12px;
+    }
+    .goal-name {
+      font-size: 1.2rem;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+    }
+    .goal-name em {
+      font-family: "Instrument Serif", serif;
+      font-style: italic;
+      font-weight: 400;
+      color: var(--text-secondary);
+      font-size: 0.92em;
+    }
+    .goal-fraction {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      font-variant-numeric: tabular-nums;
+      text-align: right;
+      flex-shrink: 0;
+    }
+    .goal-fraction strong {
+      color: var(--text);
+      font-weight: 600;
+    }
+    .goal-track {
+      height: 6px;
+      background: var(--surface-3);
+      border-radius: 100px;
+      overflow: hidden;
+    }
+    .goal-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--accent), #5ea4ff);
+      border-radius: 100px;
+      transition: width 0.8s cubic-bezier(.22,1,.36,1);
+    }
+    .goal-inputs {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 4px;
+    }
+    .goal-inputs > div { display: flex; flex-direction: column; gap: 6px; }
+    .goal-inputs label {
+      font-size: 0.7rem;
+      color: var(--text-tertiary);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .goal-inputs input {
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      background: var(--surface-2);
+      color: var(--text);
+      border-radius: 10px;
+      font-size: 0.92rem;
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+      font-family: inherit;
+    }
+    .goal-inputs input:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+    .goal-inputs input[readonly] { background: var(--bg); color: var(--text-secondary); }
+    .goal-inputs .static-target {
+      padding: 10px 12px;
+      border: 1px dashed var(--border);
+      border-radius: 10px;
+      font-size: 0.92rem;
+      color: var(--text-secondary);
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* ============ TIMELINE ============ */
+    .timeline-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 28px;
+      overflow: hidden;
+    }
+    .timeline-events { padding: 8px 0; }
+    .timeline-event {
+      display: grid;
+      grid-template-columns: 200px 1fr;
+      gap: 32px;
+      padding: 28px 40px;
+      border-bottom: 1px solid var(--border);
+    }
+    @media (max-width: 700px) {
+      .timeline-event { grid-template-columns: 1fr; gap: 8px; padding: 24px; }
+    }
+    .timeline-event:last-child { border-bottom: none; }
+    .timeline-when {
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .timeline-what {
+      font-size: 1.1rem;
+      color: var(--text);
+      line-height: 1.4;
+    }
+    .timeline-focus {
+      padding: 32px 40px;
+      background: linear-gradient(135deg, var(--surface-2), var(--surface));
+      border-top: 1px solid var(--border-strong);
+      font-family: "Instrument Serif", serif;
+      font-style: italic;
+      font-size: 1.15rem;
+      line-height: 1.5;
+      color: var(--text-secondary);
+    }
+    @media (max-width: 700px) { .timeline-focus { padding: 24px; } }
+
+    /* ============ SYNC ============ */
+    .sync-section {
+      padding: 60px 0;
+    }
+    .sync-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      overflow: hidden;
+    }
+    .sync-toggle {
+      width: 100%;
+      background: none;
+      border: none;
+      padding: 24px 32px;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: var(--text);
+      font-family: inherit;
+      font-size: 1rem;
+      font-weight: 500;
+      transition: background 0.2s ease;
+    }
+    .sync-toggle:hover { background: var(--surface-2); }
+    .sync-toggle::after {
+      content: "+";
+      font-size: 1.4rem;
+      color: var(--text-secondary);
+      transition: transform 0.3s ease;
+    }
+    .sync-card.open .sync-toggle::after { transform: rotate(45deg); }
+    .sync-content {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.4s ease;
+    }
+    .sync-card.open .sync-content { max-height: 800px; }
+    .sync-inner {
+      padding: 8px 32px 32px;
+      border-top: 1px solid var(--border);
+    }
+    .sync-fields {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin: 20px 0;
+    }
+    @media (max-width: 700px) { .sync-fields { grid-template-columns: 1fr; } }
+    .sync-fields > div { display: flex; flex-direction: column; gap: 6px; }
+    .sync-fields label {
+      font-size: 0.78rem;
+      color: var(--text-secondary);
+      font-weight: 500;
+    }
+    .sync-fields input {
+      padding: 12px 14px;
+      border: 1px solid var(--border);
+      background: var(--surface-2);
+      color: var(--text);
+      border-radius: 10px;
+      font-size: 0.85rem;
+      font-family: inherit;
+      transition: all 0.2s ease;
+    }
+    .sync-fields input:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(10, 132, 255, 0.15);
+    }
+    .sync-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+    .btn {
+      padding: 10px 20px;
+      border-radius: 100px;
+      font-family: inherit;
+      font-size: 0.85rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      border: 1px solid var(--border);
+      background: var(--surface-2);
+      color: var(--text);
+    }
+    .btn:hover { background: var(--surface-3); }
+    .btn.primary {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #fff;
+    }
+    .btn.primary:hover { background: var(--accent-hover); border-color: var(--accent-hover); }
+    .sync-status {
+      font-size: 0.8rem;
+      color: var(--text-tertiary);
+      margin-bottom: 12px;
+    }
+    .sync-sql {
+      padding: 14px;
+      border: 1px dashed var(--border);
+      border-radius: 10px;
+      background: var(--bg);
+      font-family: "SF Mono", "Menlo", monospace;
+      font-size: 0.72rem;
+      color: var(--text-secondary);
+      line-height: 1.5;
+      word-break: break-all;
+    }
+
+    /* ============ FOOTER ============ */
+    .footer {
+      padding: 60px 0 80px;
+      border-top: 1px solid var(--border);
+      margin-top: 40px;
+      text-align: center;
+    }
+    .footer-paws {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+    .footer-paw {
+      width: 24px; height: 24px;
+      opacity: 0.4;
+      transition: all 0.3s ease;
+    }
+    .footer-paw:hover {
+      opacity: 1;
+      transform: translateY(-4px);
+    }
+    .footer-text {
+      font-size: 0.85rem;
+      color: var(--text-tertiary);
+      margin-bottom: 6px;
+    }
+    .footer-text em {
+      font-family: "Instrument Serif", serif;
+      font-style: italic;
+      color: var(--text-secondary);
+    }
+
+    /* ============ ANIMATIONS ============ */
+    .reveal {
+      opacity: 0;
+      transform: translateY(24px);
+      transition: opacity 0.9s cubic-bezier(.22,1,.36,1), transform 0.9s cubic-bezier(.22,1,.36,1);
+    }
+    .reveal.in { opacity: 1; transform: translateY(0); }
+  </style>
+</head>
+<body>
+
+  <!-- Loader -->
+  <div class="loader" id="pageLoader">
+    <svg class="loader-paw" viewBox="0 0 64 64" fill="none">
+      <ellipse cx="32" cy="44" rx="14" ry="12" fill="#f5f5f7"/>
+      <ellipse cx="14" cy="26" rx="6" ry="8" fill="#f5f5f7"/>
+      <ellipse cx="50" cy="26" rx="6" ry="8" fill="#f5f5f7"/>
+      <ellipse cx="22" cy="14" rx="5" ry="7" fill="#f5f5f7"/>
+      <ellipse cx="42" cy="14" rx="5" ry="7" fill="#f5f5f7"/>
+    </svg>
+  </div>
+
+  <!-- Interactive background -->
+  <div class="bg-mesh">
+    <div class="mesh-orb chuwi" id="orbChuwi"></div>
+    <div class="mesh-orb haru" id="orbHaru"></div>
+    <div class="mesh-orb milo" id="orbMilo"></div>
+  </div>
+
+  <!-- Constellation paws -->
+  <div class="paw-layer" id="pawLayer"></div>
+
+  <!-- Apple-style nav -->
+  <nav class="navbar">
+    <div class="navbar-inner">
+      <a href="#top" class="nav-brand">
+        <span class="nav-brand-icon">🐾</span>
+        <span>Household</span>
+      </a>
+      <ul class="nav-links" id="pillNav">
+        <li><a href="#snapshot">Snapshot</a></li>
+        <li><a href="#income">Income</a></li>
+        <li><a href="#expenses">Expenses</a></li>
+        <li><a href="#goals">Goals</a></li>
+        <li><a href="#timeline">Timeline</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <div class="container" id="top">
+
+    <!-- ============ HERO ============ -->
+    <section class="hero">
+      <div class="hero-eyebrow">A budget for <span>Andrei</span> & <span>Erielle</span></div>
+      <h1>The math <em>of us.</em></h1>
+      <p class="hero-sub">Two incomes. Three dogs. One quiet plan to get where we're going.</p>
+      <div class="hero-meta">
+        <span id="todayLabel">—</span>
+        <span class="hero-divider">·</span>
+        <a href="#snapshot">See the snapshot ↓</a>
+      </div>
+
+      <!-- The dogs — front and center -->
+      <div class="dog-bar">
+        <div class="dog-card" data-dog="chuwi">
+          <div class="dog-avatar">🐶</div>
+          <div>
+            <div class="dog-name">Chuwi</div>
+            <span class="dog-role">The watcher of bills</span>
+          </div>
+        </div>
+        <div class="dog-card" data-dog="haru">
+          <div class="dog-avatar">🐕</div>
+          <div>
+            <div class="dog-name">Haru</div>
+            <span class="dog-role">The keeper of treats</span>
+          </div>
+        </div>
+        <div class="dog-card" data-dog="milo">
+          <div class="dog-avatar">🐺</div>
+          <div>
+            <div class="dog-name">Milo</div>
+            <span class="dog-role">The chaser of dreams</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ SNAPSHOT ============ -->
+    <section class="section" id="snapshot">
+      <div class="section-eyebrow chuwi"><span class="dot"></span>Snapshot · Watched over by Chuwi</div>
+      <h2 class="section-title">What's left, <em>after everything.</em></h2>
+      <p class="section-sub">A clear look at the month. Bills accounted for, spending tracked, the rest yours to keep.</p>
+
+      <div class="headline-card">
+        <div class="headline-card-label">Left after spending</div>
+        <div class="headline-card-value positive ticker" id="kpiSavings">PHP 0.00</div>
+        <div class="headline-card-sub" id="kpiSavingsSub">A peaceful month, all things considered.</div>
+        <div class="month-pill">
+          <span>Planning for</span>
+          <select id="monthSelect" aria-label="Month">
+            <option value="01">January</option><option value="02">February</option>
+            <option value="03">March</option><option value="04">April</option>
+            <option value="05">May</option><option value="06">June</option>
+            <option value="07">July</option><option value="08">August</option>
+            <option value="09">September</option><option value="10">October</option>
+            <option value="11">November</option><option value="12">December</option>
+          </select>
+          <select id="yearSelect" aria-label="Year"></select>
+          <input type="hidden" id="monthKey" />
+        </div>
+      </div>
+
+      <div class="stat-grid">
+        <div class="stat">
+          <div class="stat-label">Money in</div>
+          <div class="stat-value ticker" id="kpiIncome">PHP 0.00</div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">Monthly bills</div>
+          <div class="stat-value ticker" id="kpiFixed">PHP 0.00</div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">Everyday spending</div>
+          <div class="stat-value ticker" id="kpiVariable">PHP 0.00</div>
+        </div>
+      </div>
+
+      <div class="viz-card">
+        <div class="viz-header">
+          <h3 class="viz-title">Where it goes.</h3>
+          <span class="viz-meta">Income flow · this month</span>
+        </div>
+        <svg id="flowChart" viewBox="0 0 1000 320" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg"></svg>
+
+        <div class="comp-bar" id="compBar">
+          <div class="comp-seg fixed" id="segFixed"></div>
+          <div class="comp-seg variable" id="segVariable"></div>
+          <div class="comp-seg remaining" id="segRemaining"></div>
+          <div class="comp-seg shortfall" id="segShortfall" style="display:none;"></div>
+        </div>
+
+        <div class="comp-legend">
+          <div class="comp-item">
+            <span class="comp-item-label"><span class="comp-dot fixed"></span>Bills</span>
+            <span class="comp-item-value ticker" id="legFixedVal">PHP 0.00</span>
+            <span class="comp-item-pct" id="legFixedPct">0%</span>
+          </div>
+          <div class="comp-item">
+            <span class="comp-item-label"><span class="comp-dot variable"></span>Spending</span>
+            <span class="comp-item-value ticker" id="legVarVal">PHP 0.00</span>
+            <span class="comp-item-pct" id="legVarPct">0%</span>
+          </div>
+          <div class="comp-item">
+            <span class="comp-item-label"><span class="comp-dot remaining"></span>Remaining</span>
+            <span class="comp-item-value ticker" id="legRemVal">PHP 0.00</span>
+            <span class="comp-item-pct" id="legRemPct">0%</span>
+          </div>
+          <div class="comp-item" id="shortfallLegend" style="display:none;">
+            <span class="comp-item-label"><span class="comp-dot shortfall"></span>Shortfall</span>
+            <span class="comp-item-value ticker" id="legShortVal">PHP 0.00</span>
+            <span class="comp-item-pct" id="legShortPct">0%</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ INCOME ============ -->
+    <section class="section" id="income">
+      <div class="section-eyebrow haru"><span class="dot"></span>Income · Counted by Haru</div>
+      <h2 class="section-title">Saturday, <em>by Saturday.</em></h2>
+      <p class="section-sub">Five weekly slots, in case the month catches a bonus payout. Leave Week 5 at zero if there isn't one.</p>
+
+      <div class="income-grid">
+        <div class="earner">
+          <div class="earner-head">
+            <div class="earner-name">Andrei</div>
+            <div class="earner-tag">Earner 01</div>
+          </div>
+          <div class="week-grid">
+            <div class="week"><label>Wk 1</label><input type="number" id="andreiW1" min="0" step="0.01" value="20000" /></div>
+            <div class="week"><label>Wk 2</label><input type="number" id="andreiW2" min="0" step="0.01" value="20000" /></div>
+            <div class="week"><label>Wk 3</label><input type="number" id="andreiW3" min="0" step="0.01" value="20000" /></div>
+            <div class="week"><label>Wk 4</label><input type="number" id="andreiW4" min="0" step="0.01" value="20000" /></div>
+            <div class="week"><label>Wk 5</label><input type="number" id="andreiW5" min="0" step="0.01" value="0" /></div>
+          </div>
+          <div class="earner-total">
+            <span class="earner-total-label">Monthly total</span>
+            <span class="earner-total-value ticker" id="andreiMonthly">PHP 0.00</span>
+          </div>
+        </div>
+        <div class="earner">
+          <div class="earner-head">
+            <div class="earner-name">Erielle</div>
+            <div class="earner-tag">Earner 02</div>
+          </div>
+          <div class="week-grid">
+            <div class="week"><label>Wk 1</label><input type="number" id="erielleW1" min="0" step="0.01" value="10000" /></div>
+            <div class="week"><label>Wk 2</label><input type="number" id="erielleW2" min="0" step="0.01" value="10000" /></div>
+            <div class="week"><label>Wk 3</label><input type="number" id="erielleW3" min="0" step="0.01" value="10000" /></div>
+            <div class="week"><label>Wk 4</label><input type="number" id="erielleW4" min="0" step="0.01" value="10000" /></div>
+            <div class="week"><label>Wk 5</label><input type="number" id="erielleW5" min="0" step="0.01" value="0" /></div>
+          </div>
+          <div class="earner-total">
+            <span class="earner-total-label">Monthly total</span>
+            <span class="earner-total-value ticker" id="erielleMonthly">PHP 0.00</span>
+          </div>
+        </div>
+      </div>
+      <div class="combined">
+        <span class="combined-label">Combined household</span>
+        <span class="combined-value ticker" id="combinedMonthly">PHP 0.00</span>
+      </div>
+    </section>
+
+    <!-- ============ EXPENSES ============ -->
+    <section class="section" id="expenses">
+      <div class="section-eyebrow milo"><span class="dot"></span>Expenses · Tracked by Milo</div>
+      <h2 class="section-title">What we owe, <em>and what we use.</em></h2>
+      <p class="section-sub">Toggle a bill once it's settled. The rest of the page updates with you.</p>
+
+      <div class="ledger-grid">
+        <div class="ledger">
+          <div class="ledger-head">
+            <span class="ledger-title">Monthly Bills</span>
+            <span class="ledger-total ticker" id="fixedTotal">PHP 0.00</span>
+          </div>
+          <div id="fixedRows"></div>
+        </div>
+        <div class="ledger">
+          <div class="ledger-head">
+            <span class="ledger-title">Everyday Spending</span>
+            <span class="ledger-total ticker" id="variableTotal">PHP 0.00</span>
+          </div>
+          <div id="variableRows"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ GOALS ============ -->
+    <section class="section" id="goals">
+      <div class="section-eyebrow chuwi"><span class="dot"></span>Goals · Dreamt up by Chuwi</div>
+      <h2 class="section-title">The things we're <em>building toward.</em></h2>
+      <p class="section-sub">Set a total in the bank and a split, or fill each in by hand. The progress bars do the rest.</p>
+
+      <div class="goals-card">
+        <div class="goals-controls">
+          <div>
+            <label class="field-label">Total savings parked in bank</label>
+            <input type="number" class="field-input" id="goalBankTotal" value="0" min="0" />
+            <div class="unallocated" id="goalUnallocated">Unallocated: PHP 0.00</div>
+          </div>
+          <div>
+            <label class="field-label">Distribution mode</label>
+            <label class="ios-toggle-wrap" id="autoToggle">
+              <input type="checkbox" id="autoAllocateGoals" checked />
+              <div class="ios-toggle-text">
+                <span id="autoToggleText">Auto-distribute</span>
+                <small>Split bank by percentages below</small>
+              </div>
+              <div class="paid-toggle checked" id="autoToggleVisual"></div>
+            </label>
+          </div>
+        </div>
+
+        <div class="alloc-sliders">
+          <div class="alloc-slider">
+            <label>Car <span class="alloc-pct" id="allocCarPct">40%</span></label>
+            <input type="range" id="allocCar" min="0" max="100" value="40" />
+          </div>
+          <div class="alloc-slider">
+            <label>iPhone <span class="alloc-pct" id="allocIphonePct">20%</span></label>
+            <input type="range" id="allocIphone" min="0" max="100" value="20" />
+          </div>
+          <div class="alloc-slider">
+            <label>MacBook <span class="alloc-pct" id="allocMacPct">20%</span></label>
+            <input type="range" id="allocMac" min="0" max="100" value="20" />
+          </div>
+          <div class="alloc-slider">
+            <label>Rhinoplasty <span class="alloc-pct" id="allocRhinoPct">20%</span></label>
+            <input type="range" id="allocRhino" min="0" max="100" value="20" />
+          </div>
+        </div>
+
+        <div class="goal-list">
+          <div class="goal-item">
+            <div class="goal-row">
+              <span class="goal-name">Car Mortgage <em>— Orico balance</em></span>
+              <span class="goal-fraction"><strong id="goalCarSavedDisplay">PHP 0</strong> of PHP 530,872</span>
+            </div>
+            <div class="goal-track"><div class="goal-fill" id="carBar"></div></div>
+            <div class="goal-inputs">
+              <div><label>Target</label><div class="static-target">PHP 530,872.00</div></div>
+              <div><label>Saved so far</label><input type="number" id="goalCarSaved" value="0" min="0" /></div>
+            </div>
+          </div>
+
+          <div class="goal-item">
+            <div class="goal-row">
+              <span class="goal-name">iPhone 15 Pro Max <em>— Erielle</em></span>
+              <span class="goal-fraction"><strong id="goalIphoneSavedDisplay">PHP 0</strong> of <span id="goalIphoneTargetDisplay">PHP 90,000</span></span>
+            </div>
+            <div class="goal-track"><div class="goal-fill" id="iphoneBar"></div></div>
+            <div class="goal-inputs">
+              <div><label>Target</label><input type="number" id="goalIphoneTarget" value="90000" min="0" /></div>
+              <div><label>Saved so far</label><input type="number" id="goalIphoneSaved" value="0" min="0" /></div>
+            </div>
+          </div>
+
+          <div class="goal-item">
+            <div class="goal-row">
+              <span class="goal-name">MacBook <em>— Andrei</em></span>
+              <span class="goal-fraction"><strong id="goalMacSavedDisplay">PHP 0</strong> of <span id="goalMacTargetDisplay">PHP 95,000</span></span>
+            </div>
+            <div class="goal-track"><div class="goal-fill" id="macBar"></div></div>
+            <div class="goal-inputs">
+              <div><label>Target</label><input type="number" id="goalMacTarget" value="95000" min="0" /></div>
+              <div><label>Saved so far</label><input type="number" id="goalMacSaved" value="0" min="0" /></div>
+            </div>
+          </div>
+
+          <div class="goal-item">
+            <div class="goal-row">
+              <span class="goal-name">Rhinoplasty <em>— Erielle</em></span>
+              <span class="goal-fraction"><strong id="goalRhinoSavedDisplay">PHP 0</strong> of PHP 40,000</span>
+            </div>
+            <div class="goal-track"><div class="goal-fill" id="rhinoBar"></div></div>
+            <div class="goal-inputs">
+              <div><label>Target</label><div class="static-target">PHP 40,000.00</div></div>
+              <div><label>Saved so far</label><input type="number" id="goalRhinoSaved" value="0" min="0" /></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ TIMELINE ============ -->
+    <section class="section" id="timeline">
+      <div class="section-eyebrow haru"><span class="dot"></span>Plan · Plotted by Haru</div>
+      <h2 class="section-title">A simple <em>chronology.</em></h2>
+      <p class="section-sub">What's coming due, what gets freed up, and the pace required to finish things sooner.</p>
+
+      <div class="timeline-card">
+        <div class="timeline-events">
+          <div class="timeline-event">
+            <div class="timeline-when">Now → Month 10</div>
+            <div class="timeline-what" id="m10Label">Keep both personal loans and the car installment current.</div>
+          </div>
+          <div class="timeline-event">
+            <div class="timeline-when">After Month 10</div>
+            <div class="timeline-what" id="m12Label">Personal loans cleared — PHP 8,700/month freed.</div>
+          </div>
+          <div class="timeline-event">
+            <div class="timeline-when">2-Year Car Target</div>
+            <div class="timeline-what" id="m24Label">Need PHP 28,389.41/month total car payment.</div>
+          </div>
+          <div class="timeline-event">
+            <div class="timeline-when">1-Year Car Target</div>
+            <div class="timeline-what" id="stdLabel">Need PHP 50,510.42/month total car payment.</div>
+          </div>
+        </div>
+        <div class="timeline-focus" id="timelineFocus">
+          Use this month's leftover cash to decide how aggressive your payoff can be.
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ SYNC ============ -->
+    <section class="sync-section">
+      <div class="sync-card" id="syncCard">
+        <button class="sync-toggle" id="syncToggle">Cloud sync · optional</button>
+        <div class="sync-content">
+          <div class="sync-inner">
+            <p style="font-size: 0.9rem; color: var(--text-secondary); margin-top: 16px;">Only needed if you both want shared data across devices. Local storage works without this.</p>
+            <div class="sync-fields">
+              <div>
+                <label>Supabase URL</label>
+                <input type="text" id="sbUrl" placeholder="https://xxxx.supabase.co" />
+              </div>
+              <div>
+                <label>Anon Key</label>
+                <input type="text" id="sbAnonKey" placeholder="eyJhbGci..." />
+              </div>
+              <div>
+                <label>Household ID</label>
+                <input type="text" id="householdId" placeholder="andrei-erielle-home" />
+              </div>
+            </div>
+            <div class="sync-actions">
+              <button class="btn primary" id="connectSupabaseBtn" type="button">Connect</button>
+              <button class="btn" id="saveNowBtn" type="button">Save now</button>
+              <button class="btn" id="loadNowBtn" type="button">Reload month</button>
+            </div>
+            <div class="sync-status" id="syncStatus">Sync status: Local only.</div>
+            <div class="sync-sql">create table if not exists household_budget_entries (household_id text not null, month_key text not null, payload jsonb not null, updated_at timestamptz not null default now(), primary key (household_id, month_key));</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ FOOTER ============ -->
+    <footer class="footer">
+      <div class="footer-paws">
+        <svg class="footer-paw" viewBox="0 0 64 64" fill="#ff6482"><ellipse cx="32" cy="44" rx="14" ry="12"/><ellipse cx="14" cy="26" rx="6" ry="8"/><ellipse cx="50" cy="26" rx="6" ry="8"/><ellipse cx="22" cy="14" rx="5" ry="7"/><ellipse cx="42" cy="14" rx="5" ry="7"/></svg>
+        <svg class="footer-paw" viewBox="0 0 64 64" fill="#ffd60a"><ellipse cx="32" cy="44" rx="14" ry="12"/><ellipse cx="14" cy="26" rx="6" ry="8"/><ellipse cx="50" cy="26" rx="6" ry="8"/><ellipse cx="22" cy="14" rx="5" ry="7"/><ellipse cx="42" cy="14" rx="5" ry="7"/></svg>
+        <svg class="footer-paw" viewBox="0 0 64 64" fill="#64d2ff"><ellipse cx="32" cy="44" rx="14" ry="12"/><ellipse cx="14" cy="26" rx="6" ry="8"/><ellipse cx="50" cy="26" rx="6" ry="8"/><ellipse cx="22" cy="14" rx="5" ry="7"/><ellipse cx="42" cy="14" rx="5" ry="7"/></svg>
+      </div>
+      <div class="footer-text">For <em>Andrei</em> & <em>Erielle</em></div>
+      <div class="footer-text">Watched over by Chuwi, Haru & Milo.</div>
+    </footer>
+
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    // ============ DATA ============
+    const fixedDefaults = [
+      { key: "condo", name: "Condo", amount: 18000, paid: false, due: "1st of the month" },
+      { key: "carMortgage", name: "Car Mortgage (Orico)", amount: 18355, paid: false, due: "17th of the month" },
+      { key: "carInsurance", name: "Car Insurance (PhilFirst)", amount: 2109.33, paid: false, due: "Next: 01/15/2027" },
+      { key: "andreiLoan", name: "Personal Loan — Andrei", amount: 4700, paid: false, due: "7th of the month" },
+      { key: "erielleLoan", name: "Personal Loan — Erielle", amount: 4000, paid: false, due: "7th of the month" },
+      { key: "internet", name: "Internet", amount: 1400, paid: false, due: "20th of the month" }
+    ];
+    const variableDefaults = [
+      { key: "dogsNeeds", name: "Dogs (necessities)", amount: 6000, paid: false },
+      { key: "meralco", name: "Meralco — Electricity", amount: 6000, paid: false, due: "30th of the month" },
+      { key: "water", name: "Water", amount: 150, paid: false, due: "10th of the month" },
+      { key: "laundry", name: "Laundry", amount: 1000, paid: false },
+      { key: "food", name: "Food & groceries", amount: 10000, paid: false },
+      { key: "dogsOther", name: "Dogs (non-routine)", amount: 0, paid: false },
+      { key: "misc", name: "Miscellaneous", amount: 5000, paid: false }
+    ];
+
+    // ============ STATE ============
+    let supabaseClient = null;
+    let remoteEnabled = false;
+    let saveTimer = null;
+    let isHydrating = false;
+    const animatedValues = {};
+
+    // ============ HELPERS ============
+    const $ = (id) => document.getElementById(id);
+    const php = (n) => "PHP " + (Number(n) || 0).toLocaleString("en-PH", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const phpShort = (n) => {
+      const v = Number(n) || 0;
+      if (Math.abs(v) >= 1000) return "₱" + (v / 1000).toLocaleString("en-PH", { maximumFractionDigits: 1 }) + "k";
+      return "₱" + v.toLocaleString("en-PH", { maximumFractionDigits: 0 });
+    };
+    const parseNum = (v) => { const n = Number(v); return Number.isFinite(n) ? n : 0; };
+    const getMonthTotal = (prefix) => ["W1","W2","W3","W4","W5"].reduce((s, w) => s + parseNum($(`${prefix}${w}`)?.value || 0), 0);
+    const getRowsTotal = (items, type) => items.reduce((s, it) => s + parseNum($(`${type}-${it.key}-amt`)?.value || 0), 0);
+
+    // ============ INTERACTIVE BACKGROUND ============
+    function setupInteractiveBg() {
+      const orbs = [
+        { el: $("orbChuwi"), strength: 0.04, baseX: 0, baseY: 0 },
+        { el: $("orbHaru"), strength: -0.03, baseX: 0, baseY: 0 },
+        { el: $("orbMilo"), strength: 0.05, baseX: 0, baseY: 0 }
+      ];
+      let mouseX = window.innerWidth / 2;
+      let mouseY = window.innerHeight / 2;
+
+      window.addEventListener("mousemove", (e) => {
+        mouseX = e.clientX;
+        mouseY = e.clientY;
+      });
+
+      function tick() {
+        const cx = window.innerWidth / 2;
+        const cy = window.innerHeight / 2;
+        const dx = mouseX - cx;
+        const dy = mouseY - cy;
+        orbs.forEach((o) => {
+          if (!o.el) return;
+          const tx = dx * o.strength;
+          const ty = dy * o.strength;
+          o.el.style.transform = `translate(${tx}px, ${ty}px)`;
+        });
+        requestAnimationFrame(tick);
+      }
+      tick();
+    }
+
+    // Scatter paw prints across the page
+    function setupPaws() {
+      const layer = $("pawLayer");
+      if (!layer) return;
+      const colors = ["#ff6482", "#ffd60a", "#64d2ff"];
+      const pawSvg = (color) => `<svg viewBox="0 0 64 64" fill="${color}"><ellipse cx="32" cy="44" rx="14" ry="12"/><ellipse cx="14" cy="26" rx="6" ry="8"/><ellipse cx="50" cy="26" rx="6" ry="8"/><ellipse cx="22" cy="14" rx="5" ry="7"/><ellipse cx="42" cy="14" rx="5" ry="7"/></svg>`;
+      const count = 14;
+      for (let i = 0; i < count; i++) {
+        const paw = document.createElement("div");
+        paw.className = "paw";
+        paw.style.left = Math.random() * 100 + "%";
+        paw.style.top = Math.random() * 100 + "%";
+        paw.style.transform = `rotate(${Math.random() * 360}deg)`;
+        paw.style.animationDelay = Math.random() * 12 + "s";
+        paw.style.animationDuration = (10 + Math.random() * 8) + "s";
+        const size = 16 + Math.random() * 16;
+        paw.style.width = size + "px";
+        paw.style.height = size + "px";
+        paw.innerHTML = pawSvg(colors[i % colors.length]);
+        layer.appendChild(paw);
+      }
+    }
+
+    // ============ EXPENSE ROWS ============
+    function renderRows(containerId, items, type) {
+      const container = $(containerId);
+      container.innerHTML = "";
+      items.forEach(item => {
+        const row = document.createElement("div");
+        row.className = "expense-row" + (item.paid ? " paid" : "");
+        row.innerHTML = `
+          <div class="expense-info">
+            <span class="expense-name">${item.name}</span>
+            ${item.due ? `<span class="expense-due">${item.due}</span>` : ""}
+          </div>
+          <input type="number" min="0" step="0.01" id="${type}-${item.key}-amt" value="${item.amount}" />
+          <label class="paid-toggle${item.paid ? ' checked' : ''}">
+            <input type="checkbox" id="${type}-${item.key}-paid" ${item.paid ? "checked" : ""} />
+          </label>
+        `;
+        container.appendChild(row);
+      });
+      container.querySelectorAll(".paid-toggle input").forEach(cb => {
+        cb.addEventListener("change", (e) => {
+          const wrap = e.target.closest(".paid-toggle");
+          const row = e.target.closest(".expense-row");
+          wrap.classList.toggle("checked", e.target.checked);
+          row.classList.toggle("paid", e.target.checked);
+        });
+      });
+    }
+
+    // ============ FLOW CHART (SVG) ============
+    function drawFlow(income, fixedTotal, variableTotal) {
+      const svg = $("flowChart");
+      if (!svg) return;
+      const W = 1000, H = 320;
+      const padL = 50, padR = 50, padT = 40, padB = 30;
+      const innerH = H - padT - padB;
+
+      const remainingRaw = income - fixedTotal - variableTotal;
+      const remaining = Math.max(0, remainingRaw);
+      const shortfall = Math.max(0, -remainingRaw);
+
+      const segments = [
+        { key: "fixed", value: fixedTotal, color: "#0a84ff", label: "Bills" },
+        { key: "variable", value: variableTotal, color: "#ff9f0a", label: "Spending" },
+        { key: "remaining", value: remaining, color: "#30d158", label: "Remaining" }
+      ];
+      if (shortfall > 0) segments.push({ key: "shortfall", value: shortfall, color: "#ff453a", label: "Shortfall" });
+      const visibleSegs = segments.filter(s => s.value > 0 || s.key === "remaining");
+
+      const totalOut = visibleSegs.reduce((s, x) => s + Math.max(0.0001, x.value), 0);
+      const safeTotal = Math.max(1, Math.max(income, totalOut));
+
+      const srcX = padL;
+      const srcW = 80;
+      const srcH = innerH;
+      const srcY = padT;
+
+      const dstX = W - padR - srcW;
+      const gap = 6;
+      const totalSegHeight = innerH - gap * (visibleSegs.length - 1);
+      let yCursor = srcY;
+
+      const segGeo = visibleSegs.map(seg => {
+        const h = (Math.max(0.0001, seg.value) / safeTotal) * totalSegHeight;
+        const geo = { ...seg, x: dstX, y: yCursor, h: Math.max(2, h) };
+        yCursor += geo.h + gap;
+        return geo;
+      });
+
+      let svgContent = `<defs>
+        <linearGradient id="srcGrad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#ffffff" stop-opacity="0.95"/>
+          <stop offset="100%" stop-color="#a1a1a6" stop-opacity="0.85"/>
+        </linearGradient>
+        <linearGradient id="fixedGrad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#0a84ff"/><stop offset="100%" stop-color="#005ec4"/>
+        </linearGradient>
+        <linearGradient id="varGrad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#ffb340"/><stop offset="100%" stop-color="#ff9f0a"/>
+        </linearGradient>
+        <linearGradient id="remGrad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#5be584"/><stop offset="100%" stop-color="#30d158"/>
+        </linearGradient>
+        <linearGradient id="shortGrad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#ff7166"/><stop offset="100%" stop-color="#ff453a"/>
+        </linearGradient>
+      </defs>`;
+
+      const gradMap = { fixed: "url(#fixedGrad)", variable: "url(#varGrad)", remaining: "url(#remGrad)", shortfall: "url(#shortGrad)" };
+
+      // Source label + bar
+      svgContent += `<text x="${srcX}" y="${srcY - 12}" font-family="Inter, sans-serif" font-size="10" fill="#6e6e73" letter-spacing="2" font-weight="600">INCOME</text>`;
+      svgContent += `<rect x="${srcX}" y="${srcY}" width="${srcW}" height="${srcH}" fill="url(#srcGrad)" rx="6"/>`;
+      svgContent += `<text x="${srcX + srcW/2}" y="${srcY + srcH/2 - 4}" font-family="Inter, sans-serif" font-size="11" fill="#000" text-anchor="middle" font-weight="500" letter-spacing="1">TOTAL</text>`;
+      svgContent += `<text x="${srcX + srcW/2}" y="${srcY + srcH/2 + 14}" font-family="Inter, sans-serif" font-size="16" fill="#000" text-anchor="middle" font-weight="700">${phpShort(income)}</text>`;
+
+      // Flow ribbons
+      const sumValues = visibleSegs.reduce((s, x) => s + Math.max(0, x.value), 0);
+      const safeSrc = Math.max(1, sumValues);
+      let ySrcCursor = srcY;
+      segGeo.forEach((seg) => {
+        const sh = (seg.value / safeSrc) * srcH;
+        const sy0 = ySrcCursor;
+        const sy1 = ySrcCursor + sh;
+        ySrcCursor += sh;
+        const dy0 = seg.y;
+        const dy1 = seg.y + seg.h;
+        const x0 = srcX + srcW;
+        const x1 = seg.x;
+        const cpx = (x0 + x1) / 2;
+        const path = `M ${x0} ${sy0} C ${cpx} ${sy0}, ${cpx} ${dy0}, ${x1} ${dy0} L ${x1} ${dy1} C ${cpx} ${dy1}, ${cpx} ${sy1}, ${x0} ${sy1} Z`;
+        svgContent += `<path d="${path}" fill="${seg.color}" opacity="0.22" />`;
+      });
+
+      // Destination bars
+      svgContent += `<text x="${dstX + srcW}" y="${srcY - 12}" font-family="Inter, sans-serif" font-size="10" fill="#6e6e73" letter-spacing="2" font-weight="600" text-anchor="end">ALLOCATION</text>`;
+      segGeo.forEach((seg) => {
+        svgContent += `<rect x="${seg.x}" y="${seg.y}" width="${srcW}" height="${seg.h}" fill="${gradMap[seg.key]}" rx="6"/>`;
+        const labelY = seg.y + seg.h / 2;
+        if (seg.h > 44) {
+          svgContent += `<text x="${seg.x + srcW/2}" y="${labelY - 2}" font-family="Inter, sans-serif" font-size="9" fill="#fff" text-anchor="middle" letter-spacing="1.2" font-weight="600" opacity="0.9">${seg.label.toUpperCase()}</text>`;
+          svgContent += `<text x="${seg.x + srcW/2}" y="${labelY + 14}" font-family="Inter, sans-serif" font-size="14" fill="#fff" text-anchor="middle" font-weight="700">${phpShort(seg.value)}</text>`;
+        } else {
+          svgContent += `<text x="${seg.x + srcW + 12}" y="${labelY + 4}" font-family="Inter, sans-serif" font-size="11" fill="#a1a1a6" font-weight="500">${seg.label} · ${phpShort(seg.value)}</text>`;
+        }
+      });
+
+      svg.innerHTML = svgContent;
+    }
+
+    // ============ COMPOSITION BAR ============
+    function updateComposition(income, fixedTotal, variableTotal) {
+      const remainingRaw = income - fixedTotal - variableTotal;
+      const remaining = Math.max(0, remainingRaw);
+      const shortfall = Math.max(0, -remainingRaw);
+      const denom = Math.max(1, fixedTotal + variableTotal + remaining + shortfall);
+      const fPct = (fixedTotal / denom) * 100;
+      const vPct = (variableTotal / denom) * 100;
+      const rPct = (remaining / denom) * 100;
+      const sPct = (shortfall / denom) * 100;
+
+      $("segFixed").style.flexBasis = fPct + "%";
+      $("segVariable").style.flexBasis = vPct + "%";
+      $("segRemaining").style.flexBasis = rPct + "%";
+      $("segShortfall").style.flexBasis = sPct + "%";
+      $("segShortfall").style.display = shortfall > 0 ? "block" : "none";
+      $("shortfallLegend").style.display = shortfall > 0 ? "flex" : "none";
+
+      $("legFixedVal").textContent = php(fixedTotal);
+      $("legVarVal").textContent = php(variableTotal);
+      $("legRemVal").textContent = php(remaining);
+      $("legShortVal").textContent = php(shortfall);
+
+      const safeIncome = Math.max(1, income);
+      $("legFixedPct").textContent = ((fixedTotal / safeIncome) * 100).toFixed(1) + "% of income";
+      $("legVarPct").textContent = ((variableTotal / safeIncome) * 100).toFixed(1) + "% of income";
+      $("legRemPct").textContent = ((remaining / safeIncome) * 100).toFixed(1) + "% of income";
+      $("legShortPct").textContent = ((shortfall / safeIncome) * 100).toFixed(1) + "% of income";
+
+      $("fixedTotal").textContent = php(fixedTotal);
+      $("variableTotal").textContent = php(variableTotal);
+    }
+
+    // ============ ANIMATED COUNTER ============
+    function animateValue(elId, target, durationMs = 800) {
+      const el = $(elId);
+      if (!el) return;
+      const start = animatedValues[elId] ?? 0;
+      const end = Number(target) || 0;
+      const startTs = performance.now();
+      animatedValues[elId] = end;
+      function tick(ts) {
+        const t = Math.min(1, (ts - startTs) / durationMs);
+        const eased = 1 - Math.pow(1 - t, 3);
+        const current = start + (end - start) * eased;
+        el.textContent = php(current);
+        if (t < 1 && animatedValues[elId] === end) requestAnimationFrame(tick);
+      }
+      requestAnimationFrame(tick);
+    }
+
+    // ============ PROGRESS ============
+    function setProgress(saved, target, barId, displayId, targetDisplayId) {
+      const pct = target > 0 ? Math.min((saved / target) * 100, 100) : 0;
+      $(barId).style.width = pct.toFixed(1) + "%";
+      if (displayId) $(displayId).textContent = "PHP " + Number(saved || 0).toLocaleString("en-PH", { maximumFractionDigits: 0 });
+      if (targetDisplayId) $(targetDisplayId).textContent = "PHP " + Number(target || 0).toLocaleString("en-PH", { maximumFractionDigits: 0 });
+    }
+
+    // ============ MONTH PICKER ============
+    function setupMonthPicker(baseDate) {
+      const m = $("monthSelect"), y = $("yearSelect"), k = $("monthKey");
+      if (!m || !y || !k) return;
+      const cy = baseDate.getFullYear();
+      y.innerHTML = "";
+      for (let yr = cy - 2; yr <= cy + 5; yr++) {
+        const opt = document.createElement("option");
+        opt.value = String(yr); opt.textContent = String(yr);
+        y.appendChild(opt);
+      }
+      m.value = String(baseDate.getMonth() + 1).padStart(2, "0");
+      y.value = String(cy);
+      k.value = `${y.value}-${m.value}`;
+      const sync = () => {
+        k.value = `${y.value}-${m.value}`;
+        k.dispatchEvent(new Event("change"));
+        updateLabel();
+      };
+      m.addEventListener("change", sync);
+      y.addEventListener("change", sync);
+      updateLabel();
+    }
+    function updateLabel() {
+      const m = $("monthSelect").value;
+      const y = $("yearSelect").value;
+      const monthNames = ["", "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+      $("todayLabel").textContent = `${monthNames[parseInt(m, 10)]} ${y}`;
+    }
+
+    // ============ TIMELINE COPY ============
+    function getRemainingMonthsDate(startDate, monthsToAdd) {
+      const d = new Date(startDate);
+      d.setMonth(d.getMonth() + monthsToAdd);
+      return d.toLocaleDateString("en-PH", { year: "numeric", month: "short", day: "2-digit" });
+    }
+    function updateTimeline() {
+      const personalLoanDone = getRemainingMonthsDate(new Date(), 10);
+      $("m10Label").textContent = `Keep both personal loans and the car installment current until around ${personalLoanDone}.`;
+      $("m12Label").textContent = "Personal loans cleared — PHP 8,700/month freed.";
+      $("m24Label").textContent = "2-year payoff pace: PHP 28,389.41/month total car payment.";
+      $("stdLabel").textContent = "1-year payoff pace: PHP 50,510.42/month total car payment.";
+    }
+
+    // ============ MAIN UPDATE ============
+    function updateAll() {
+      const andrei = getMonthTotal("andrei");
+      const erielle = getMonthTotal("erielle");
+      const combined = andrei + erielle;
+      const fixedTotal = getRowsTotal(fixedDefaults, "fixed");
+      const variableTotal = getRowsTotal(variableDefaults, "var");
+      const total = fixedTotal + variableTotal;
+      const remaining = combined - total;
+
+      animateValue("kpiIncome", combined);
+      animateValue("kpiFixed", fixedTotal);
+      animateValue("kpiVariable", variableTotal);
+      animateValue("kpiSavings", remaining);
+      animateValue("andreiMonthly", andrei);
+      animateValue("erielleMonthly", erielle);
+      animateValue("combinedMonthly", combined);
+
+      const savings = $("kpiSavings");
+      savings.classList.toggle("positive", remaining >= 0);
+      savings.classList.toggle("negative", remaining < 0);
+
+      const sub = $("kpiSavingsSub");
+      if (remaining >= 0) {
+        sub.textContent = combined > 0 && remaining / combined > 0.2
+          ? "A peaceful month — there is room to grow things."
+          : combined > 0 && remaining > 0
+          ? "Steady. A small surplus, kept and counted."
+          : "Even — every peso accounted for.";
+      } else {
+        sub.textContent = "A shortfall this month. Tighten where you can.";
+      }
+
+      applyGoalAutomation();
+      setProgress(parseNum($("goalCarSaved").value), 530872, "carBar", "goalCarSavedDisplay");
+      setProgress(parseNum($("goalIphoneSaved").value), parseNum($("goalIphoneTarget").value), "iphoneBar", "goalIphoneSavedDisplay", "goalIphoneTargetDisplay");
+      setProgress(parseNum($("goalMacSaved").value), parseNum($("goalMacTarget").value), "macBar", "goalMacSavedDisplay", "goalMacTargetDisplay");
+      setProgress(parseNum($("goalRhinoSaved").value), 40000, "rhinoBar", "goalRhinoSavedDisplay");
+
+      drawFlow(combined, fixedTotal, variableTotal);
+      updateComposition(combined, fixedTotal, variableTotal);
+
+      const focus = $("timelineFocus");
+      const extra2Y = 10034.41, extra1Y = 32155.42;
+      focus.textContent = remaining >= 0
+        ? `This month leaves ${php(remaining)} on the table. To clear the car in two years, set aside an extra ${php(extra2Y)}; in one year, ${php(extra1Y)}.`
+        : `Short by ${php(Math.abs(remaining))} this month. Stabilize the baseline before chasing the payoff pace.`;
+
+      if (!isHydrating) scheduleSave();
+    }
+
+    // ============ GOAL AUTOMATION ============
+    function applyGoalAutomation() {
+      const totalBank = parseNum($("goalBankTotal").value);
+      const auto = $("autoAllocateGoals").checked;
+      const w = {
+        car: parseNum($("allocCar").value),
+        iphone: parseNum($("allocIphone").value),
+        mac: parseNum($("allocMac").value),
+        rhino: parseNum($("allocRhino").value)
+      };
+      const sum = Math.max(1, w.car + w.iphone + w.mac + w.rhino);
+      $("allocCarPct").textContent = w.car + "%";
+      $("allocIphonePct").textContent = w.iphone + "%";
+      $("allocMacPct").textContent = w.mac + "%";
+      $("allocRhinoPct").textContent = w.rhino + "%";
+
+      const inputs = [
+        { id: "goalCarSaved", weight: w.car },
+        { id: "goalIphoneSaved", weight: w.iphone },
+        { id: "goalMacSaved", weight: w.mac },
+        { id: "goalRhinoSaved", weight: w.rhino }
+      ];
+
+      if (auto) {
+        inputs.forEach(({ id, weight }) => {
+          $(id).value = (totalBank * (weight / sum)).toFixed(2);
+          $(id).readOnly = true;
+        });
+      } else {
+        inputs.forEach(({ id }) => { $(id).readOnly = false; });
+      }
+
+      const allocated = inputs.reduce((s, { id }) => s + parseNum($(id).value), 0);
+      const unallocated = totalBank - allocated;
+      $("goalUnallocated").textContent = `Unallocated: ${php(unallocated)}`;
+
+      $("autoToggleText").textContent = auto ? "Auto-distribute" : "Manual entry";
+      const visual = $("autoToggleVisual");
+      if (visual) visual.classList.toggle("checked", auto);
+    }
+
+    // ============ PERSISTENCE ============
+    function getCurrentPayload() {
+      return {
+        andreiW1: $("andreiW1").value, andreiW2: $("andreiW2").value, andreiW3: $("andreiW3").value, andreiW4: $("andreiW4").value, andreiW5: $("andreiW5").value,
+        erielleW1: $("erielleW1").value, erielleW2: $("erielleW2").value, erielleW3: $("erielleW3").value, erielleW4: $("erielleW4").value, erielleW5: $("erielleW5").value,
+        goals: {
+          bankTotal: $("goalBankTotal").value,
+          auto: $("autoAllocateGoals").checked,
+          allocCar: $("allocCar").value,
+          allocIphone: $("allocIphone").value,
+          allocMac: $("allocMac").value,
+          allocRhino: $("allocRhino").value,
+          car: $("goalCarSaved").value,
+          iphoneT: $("goalIphoneTarget").value, iphoneS: $("goalIphoneSaved").value,
+          macT: $("goalMacTarget").value, macS: $("goalMacSaved").value,
+          rhinoS: $("goalRhinoSaved").value
+        },
+        fixed: fixedDefaults.map(x => ({ key: x.key, amount: $(`fixed-${x.key}-amt`).value, paid: $(`fixed-${x.key}-paid`).checked })),
+        variable: variableDefaults.map(x => ({ key: x.key, amount: $(`var-${x.key}-amt`).value, paid: $(`var-${x.key}-paid`).checked }))
+      };
+    }
+
+    function applyPayloadToForm(data) {
+      if (!data) return;
+      const setVal = (id, v) => { const el = $(id); if (el && v != null) el.value = v; };
+      setVal("andreiW1", data.andreiW1); setVal("andreiW2", data.andreiW2); setVal("andreiW3", data.andreiW3); setVal("andreiW4", data.andreiW4); setVal("andreiW5", data.andreiW5);
+      setVal("erielleW1", data.erielleW1); setVal("erielleW2", data.erielleW2); setVal("erielleW3", data.erielleW3); setVal("erielleW4", data.erielleW4); setVal("erielleW5", data.erielleW5);
+      if (data.goals) {
+        setVal("goalBankTotal", data.goals.bankTotal);
+        if (data.goals.auto != null) $("autoAllocateGoals").checked = !!data.goals.auto;
+        setVal("allocCar", data.goals.allocCar); setVal("allocIphone", data.goals.allocIphone);
+        setVal("allocMac", data.goals.allocMac); setVal("allocRhino", data.goals.allocRhino);
+        setVal("goalCarSaved", data.goals.car);
+        setVal("goalIphoneTarget", data.goals.iphoneT); setVal("goalIphoneSaved", data.goals.iphoneS);
+        setVal("goalMacTarget", data.goals.macT); setVal("goalMacSaved", data.goals.macS);
+        setVal("goalRhinoSaved", data.goals.rhinoS);
+      }
+      (data.fixed || []).forEach(item => {
+        const amt = $(`fixed-${item.key}-amt`), paid = $(`fixed-${item.key}-paid`);
+        if (amt) amt.value = item.amount;
+        if (paid) {
+          paid.checked = !!item.paid;
+          const wrap = paid.closest(".paid-toggle");
+          const row = paid.closest(".expense-row");
+          if (wrap) wrap.classList.toggle("checked", paid.checked);
+          if (row) row.classList.toggle("paid", paid.checked);
+        }
+      });
+      (data.variable || []).forEach(item => {
+        const amt = $(`var-${item.key}-amt`), paid = $(`var-${item.key}-paid`);
+        if (amt) amt.value = item.amount;
+        if (paid) {
+          paid.checked = !!item.paid;
+          const wrap = paid.closest(".paid-toggle");
+          const row = paid.closest(".expense-row");
+          if (wrap) wrap.classList.toggle("checked", paid.checked);
+          if (row) row.classList.toggle("paid", paid.checked);
+        }
+      });
+    }
+
+    function scheduleSave() {
+      if (saveTimer) clearTimeout(saveTimer);
+      saveTimer = setTimeout(saveMonthData, 450);
+    }
+
+    async function saveMonthData() {
+      const monthKey = $("monthKey").value;
+      if (!monthKey) return;
+      const payload = getCurrentPayload();
+      localStorage.setItem("budget-" + monthKey, JSON.stringify(payload));
+      if (!remoteEnabled || !supabaseClient) return;
+      const cfg = getSupabaseSettings();
+      if (!cfg.householdId) return;
+      const { error } = await supabaseClient
+        .from("household_budget_entries")
+        .upsert({ household_id: cfg.householdId, month_key: monthKey, payload, updated_at: new Date().toISOString() }, { onConflict: "household_id,month_key" });
+      if (error) setSyncStatus(`Cloud save failed, local backup kept: ${error.message}`);
+      else setSyncStatus(`Cloud synced for ${monthKey} at ${new Date().toLocaleTimeString()}.`);
+    }
+
+    async function loadMonthData() {
+      const monthKey = $("monthKey").value;
+      let loaded = false;
+      isHydrating = true;
+      if (remoteEnabled && supabaseClient) {
+        const cfg = getSupabaseSettings();
+        const { data, error } = await supabaseClient
+          .from("household_budget_entries")
+          .select("payload,updated_at")
+          .eq("household_id", cfg.householdId)
+          .eq("month_key", monthKey)
+          .maybeSingle();
+        if (!error && data && data.payload) {
+          applyPayloadToForm(data.payload);
+          localStorage.setItem("budget-" + monthKey, JSON.stringify(data.payload));
+          loaded = true;
+          setSyncStatus(`Loaded ${monthKey} from cloud.`);
+        }
+      }
+      if (!loaded) {
+        const raw = localStorage.getItem("budget-" + monthKey);
+        if (raw) { try { applyPayloadToForm(JSON.parse(raw)); } catch (e) { console.error("Load failed", e); } }
+      }
+      isHydrating = false;
+    }
+
+    // ============ SUPABASE ============
+    function setSyncStatus(msg) { $("syncStatus").textContent = `Sync status: ${msg}`; }
+    function getSupabaseSettings() {
+      return {
+        url: ($("sbUrl").value || "").trim(),
+        anonKey: ($("sbAnonKey").value || "").trim(),
+        householdId: ($("householdId").value || "").trim()
+      };
+    }
+    function saveSupabaseSettingsLocally() {
+      localStorage.setItem("supabase-settings", JSON.stringify(getSupabaseSettings()));
+    }
+    function loadSupabaseSettingsLocally() {
+      const raw = localStorage.getItem("supabase-settings");
+      if (!raw) return;
+      try {
+        const cfg = JSON.parse(raw);
+        $("sbUrl").value = cfg.url || "";
+        $("sbAnonKey").value = cfg.anonKey || "";
+        $("householdId").value = cfg.householdId || "";
+      } catch (_) {}
+    }
+    async function connectSupabase() {
+      if (!window.supabase || !window.supabase.createClient) { setSyncStatus("Supabase library failed to load."); return; }
+      const cfg = getSupabaseSettings();
+      if (!cfg.url || !cfg.anonKey || !cfg.householdId) { setSyncStatus("Enter URL, anon key, and household ID first."); return; }
+      try {
+        supabaseClient = window.supabase.createClient(cfg.url, cfg.anonKey);
+        const probe = await supabaseClient.from("household_budget_entries").select("month_key").eq("household_id", cfg.householdId).limit(1);
+        if (probe.error) throw probe.error;
+        remoteEnabled = true;
+        saveSupabaseSettingsLocally();
+        setSyncStatus("Connected. Cloud sync is active.");
+        await loadMonthData();
+        updateAll();
+      } catch (err) {
+        remoteEnabled = false;
+        setSyncStatus(`Connection failed: ${err.message}`);
+      }
+    }
+
+    // ============ BIND ============
+    function bindInputs() {
+      document.querySelectorAll("input").forEach(input => {
+        if (!input.dataset.boundBudget) {
+          input.addEventListener("input", updateAll);
+          input.addEventListener("change", updateAll);
+          input.dataset.boundBudget = "1";
+        }
+      });
+      const monthKey = $("monthKey");
+      if (monthKey && !monthKey.dataset.boundMonth) {
+        monthKey.addEventListener("change", async () => {
+          renderRows("fixedRows", fixedDefaults, "fixed");
+          renderRows("variableRows", variableDefaults, "var");
+          bindInputs();
+          await loadMonthData();
+          updateAll();
+        });
+        monthKey.dataset.boundMonth = "1";
+      }
+      const bind = (id, fn) => {
+        const el = $(id);
+        if (el && !el.dataset.bound) { el.addEventListener("click", fn); el.dataset.bound = "1"; }
+      };
+      bind("connectSupabaseBtn", connectSupabase);
+      bind("saveNowBtn", saveMonthData);
+      bind("loadNowBtn", async () => { await loadMonthData(); updateAll(); });
+
+      const syncToggle = $("syncToggle");
+      if (syncToggle && !syncToggle.dataset.bound) {
+        syncToggle.addEventListener("click", () => $("syncCard").classList.toggle("open"));
+        syncToggle.dataset.bound = "1";
+      }
+    }
+
+    // ============ EXPERIENCE ============
+    function setupExperience() {
+      window.setTimeout(() => $("pageLoader")?.classList.add("hidden"), 600);
+
+      document.querySelectorAll("#pillNav a").forEach(link => {
+        link.addEventListener("click", (e) => {
+          e.preventDefault();
+          const t = document.querySelector(link.getAttribute("href"));
+          if (t) t.scrollIntoView({ behavior: "smooth", block: "start" });
+        });
+      });
+
+      const navLinks = Array.from(document.querySelectorAll("#pillNav a"));
+      const navObs = new IntersectionObserver(entries => {
+        entries.forEach(entry => {
+          if (!entry.isIntersecting) return;
+          const id = entry.target.getAttribute("id");
+          navLinks.forEach(l => l.classList.toggle("active", l.getAttribute("href") === `#${id}`));
+        });
+      }, { threshold: 0.4 });
+      document.querySelectorAll(".section").forEach(s => navObs.observe(s));
+
+      const revObs = new IntersectionObserver(entries => {
+        entries.forEach(e => { if (e.isIntersecting) e.target.classList.add("in"); });
+      }, { threshold: 0.12 });
+      document.querySelectorAll(".section, .hero").forEach(el => {
+        el.classList.add("reveal");
+        revObs.observe(el);
+      });
+
+      let resizeTimer;
+      window.addEventListener("resize", () => {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(updateAll, 150);
+      });
+
+      // Dog cards — bounce on click
+      document.querySelectorAll(".dog-card").forEach(card => {
+        card.addEventListener("click", () => {
+          const avatar = card.querySelector(".dog-avatar");
+          avatar.style.transition = "transform 0.5s cubic-bezier(.5,1.6,.4,1)";
+          avatar.style.transform = "scale(1.4) rotate(20deg)";
+          setTimeout(() => { avatar.style.transform = ""; }, 500);
+        });
+      });
+    }
+
+    // ============ INIT ============
+    async function init() {
+      const now = new Date();
+      setupMonthPicker(now);
+      renderRows("fixedRows", fixedDefaults, "fixed");
+      renderRows("variableRows", variableDefaults, "var");
+      bindInputs();
+      loadSupabaseSettingsLocally();
+      await loadMonthData();
+      updateTimeline();
+      updateAll();
+      setupExperience();
+      setupInteractiveBg();
+      setupPaws();
+    }
+    init();
+  </script>
+</body>
+</html>
