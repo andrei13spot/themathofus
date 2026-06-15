@@ -543,7 +543,7 @@
       display: block;
       margin-bottom: 32px;
     }
-    @media (max-width: 700px) { #flowChart { height: 260px; } }
+    @media (max-width: 700px) { #flowChart { height: 300px; } }
 
     /* Composition bar — clean Apple-style */
     .comp-bar {
@@ -1246,6 +1246,63 @@
       transition: opacity 0.9s cubic-bezier(.22,1,.36,1), transform 0.9s cubic-bezier(.22,1,.36,1);
     }
     .reveal.in { opacity: 1; transform: translateY(0); }
+
+    /* ============ MOBILE POLISH — bigger, roomier on phones ============ */
+    @media (max-width: 640px) {
+      .container { padding: 0 18px; }
+      .section { padding: 56px 0; }
+      .section-title { font-size: clamp(2rem, 8.5vw, 2.6rem); }
+      .section-sub { font-size: 1.05rem; line-height: 1.5; margin-bottom: 28px; }
+      .section-eyebrow { font-size: 0.82rem; }
+
+      /* Headline KPI card */
+      .headline-card-label { font-size: 0.95rem; }
+      .headline-card-value { font-size: clamp(3rem, 15vw, 4.2rem); margin-bottom: 16px; }
+      .headline-card-sub { font-size: 1.05rem; }
+
+      /* Snapshot stats — full width, larger, more tappable */
+      .stat { padding: 22px 24px; border-radius: 22px; }
+      .stat-label { font-size: 0.95rem; }
+      .stat-value { font-size: 2.1rem; }
+
+      /* Income */
+      .earner { padding: 24px 22px; border-radius: 24px; }
+      .earner-name { font-size: 1.5rem; }
+      .week input { padding: 13px 6px; font-size: 1rem; border-radius: 12px; }
+      .week label { font-size: 0.72rem; }
+      .combined { padding: 22px 24px; }
+      .combined-label { font-size: 1rem; }
+      .combined-value { font-size: 1.9rem; }
+
+      /* Expenses — larger rows, easier to tap */
+      .ledger-head { padding: 22px 22px; }
+      .ledger-title { font-size: 1.25rem; }
+      .expense-row { padding: 16px 22px; gap: 12px; }
+      .expense-name { font-size: 1.02rem; }
+      .expense-due { font-size: 0.78rem; }
+      .expense-row input[type="number"] { width: 96px; padding: 11px 12px; font-size: 1rem; }
+      .paid-toggle { width: 50px; height: 30px; }
+      .paid-toggle::after { width: 26px; height: 26px; }
+      .paid-toggle.checked::after { transform: translateX(20px); }
+
+      /* Goals */
+      .goal-name { font-size: 1.3rem; }
+      .goal-fraction { font-size: 0.92rem; }
+      .goal-inputs input, .goal-inputs .static-target { padding: 13px 12px; font-size: 1rem; }
+      .goal-inputs label { font-size: 0.74rem; }
+      .field-input { padding: 16px; font-size: 1.1rem; }
+
+      /* Composition legend under the donut */
+      .comp-legend { gap: 18px 14px; }
+      .comp-item-label { font-size: 0.85rem; }
+      .comp-item-value { font-size: 1.35rem; }
+      .comp-item-pct { font-size: 0.8rem; }
+
+      /* Timeline */
+      .timeline-when { font-size: 0.82rem; }
+      .timeline-what { font-size: 1.15rem; }
+      .timeline-focus { font-size: 1.15rem; }
+    }
   </style>
 </head>
 <body>
@@ -1370,16 +1427,9 @@
       <div class="viz-card">
         <div class="viz-header">
           <h3 class="viz-title">Where it goes.</h3>
-          <span class="viz-meta">Income flow · this month</span>
+          <span class="viz-meta">This month</span>
         </div>
-        <svg id="flowChart" viewBox="0 0 1000 320" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg"></svg>
-
-        <div class="comp-bar" id="compBar">
-          <div class="comp-seg fixed" id="segFixed"></div>
-          <div class="comp-seg variable" id="segVariable"></div>
-          <div class="comp-seg remaining" id="segRemaining"></div>
-          <div class="comp-seg shortfall" id="segShortfall" style="display:none;"></div>
-        </div>
+        <svg id="flowChart" viewBox="0 0 320 320" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg"></svg>
 
         <div class="comp-legend">
           <div class="comp-item">
@@ -1782,122 +1832,63 @@
     }
 
     // ============ FLOW CHART (SVG) ============
+    // Apple-style donut ring: how the month's income is split.
     function drawFlow(income, fixedTotal, variableTotal) {
       const svg = $("flowChart");
       if (!svg) return;
-      const W = 1000, H = 320;
-      const padL = 50, padR = 50, padT = 40, padB = 30;
-      const innerH = H - padT - padB;
+      svg.setAttribute("viewBox", "0 0 320 320");
 
       const remainingRaw = income - fixedTotal - variableTotal;
       const remaining = Math.max(0, remainingRaw);
       const shortfall = Math.max(0, -remainingRaw);
 
-      const segments = [
-        { key: "fixed", value: fixedTotal, color: "#0a84ff", label: "Bills" },
-        { key: "variable", value: variableTotal, color: "#ff9f0a", label: "Spending" },
-        { key: "remaining", value: remaining, color: "#30d158", label: "Remaining" }
+      const segs = [
+        { value: fixedTotal,    color: "#0a84ff" },
+        { value: variableTotal, color: "#ff9f0a" },
+        { value: remaining,     color: "#30d158" }
       ];
-      if (shortfall > 0) segments.push({ key: "shortfall", value: shortfall, color: "#ff453a", label: "Shortfall" });
-      const visibleSegs = segments.filter(s => s.value > 0 || s.key === "remaining");
+      if (shortfall > 0) segs.push({ value: shortfall, color: "#ff453a" });
 
-      const totalOut = visibleSegs.reduce((s, x) => s + Math.max(0.0001, x.value), 0);
-      const safeTotal = Math.max(1, Math.max(income, totalOut));
+      const active = segs.filter(s => s.value > 0);
+      const total = active.reduce((s, x) => s + x.value, 0);
 
-      const srcX = padL;
-      const srcW = 80;
-      const srcH = innerH;
-      const srcY = padT;
+      const cx = 160, cy = 160, r = 118, sw = 28;
+      const C = 2 * Math.PI * r;
+      const gap = active.length > 1 ? C * 0.012 : 0;
 
-      const dstX = W - padR - srcW;
-      const gap = 6;
-      const totalSegHeight = innerH - gap * (visibleSegs.length - 1);
-      let yCursor = srcY;
+      let out = "";
+      // faint full track
+      out += `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="${sw}"/>`;
 
-      const segGeo = visibleSegs.map(seg => {
-        const h = (Math.max(0.0001, seg.value) / safeTotal) * totalSegHeight;
-        const geo = { ...seg, x: dstX, y: yCursor, h: Math.max(2, h) };
-        yCursor += geo.h + gap;
-        return geo;
+      let acc = 0;
+      active.forEach(seg => {
+        const frac = seg.value / total;
+        const arc = Math.max(0.0001, frac * C - gap);
+        const rot = acc * 360 - 90;
+        out += `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${seg.color}" stroke-width="${sw}" stroke-dasharray="${arc} ${C - arc}" transform="rotate(${rot} ${cx} ${cy})"/>`;
+        acc += frac;
       });
 
-      let svgContent = `<defs>
-        <linearGradient id="srcGrad" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stop-color="#ffffff" stop-opacity="0.95"/>
-          <stop offset="100%" stop-color="#a1a1a6" stop-opacity="0.85"/>
-        </linearGradient>
-        <linearGradient id="fixedGrad" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stop-color="#0a84ff"/><stop offset="100%" stop-color="#005ec4"/>
-        </linearGradient>
-        <linearGradient id="varGrad" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stop-color="#ffb340"/><stop offset="100%" stop-color="#ff9f0a"/>
-        </linearGradient>
-        <linearGradient id="remGrad" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stop-color="#5be584"/><stop offset="100%" stop-color="#30d158"/>
-        </linearGradient>
-        <linearGradient id="shortGrad" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stop-color="#ff7166"/><stop offset="100%" stop-color="#ff453a"/>
-        </linearGradient>
-      </defs>`;
+      // center labels
+      const peso = (v) => "₱" + Math.round(v).toLocaleString("en-PH");
+      const isShort = remainingRaw < 0;
+      const label = isShort ? "SHORT THIS MONTH" : "LEFT THIS MONTH";
+      const centerColor = isShort ? "#ff453a" : "#30d158";
+      const val = peso(Math.abs(remainingRaw));
+      const fs = val.length > 9 ? 30 : val.length > 7 ? 36 : 42;
+      out += `<text x="${cx}" y="${cy - 28}" text-anchor="middle" font-family="Inter, sans-serif" font-size="11" letter-spacing="1.8" font-weight="600" fill="#6e6e73">${label}</text>`;
+      out += `<text x="${cx}" y="${cy + 12}" text-anchor="middle" font-family="Inter, sans-serif" font-size="${fs}" font-weight="700" fill="${centerColor}" letter-spacing="-1">${val}</text>`;
+      out += `<text x="${cx}" y="${cy + 42}" text-anchor="middle" font-family="Inter, sans-serif" font-size="12" font-weight="500" fill="#a1a1a6">of ${peso(income)} income</text>`;
 
-      const gradMap = { fixed: "url(#fixedGrad)", variable: "url(#varGrad)", remaining: "url(#remGrad)", shortfall: "url(#shortGrad)" };
-
-      // Source label + bar
-      svgContent += `<text x="${srcX}" y="${srcY - 12}" font-family="Inter, sans-serif" font-size="10" fill="#6e6e73" letter-spacing="2" font-weight="600">INCOME</text>`;
-      svgContent += `<rect x="${srcX}" y="${srcY}" width="${srcW}" height="${srcH}" fill="url(#srcGrad)" rx="6"/>`;
-      svgContent += `<text x="${srcX + srcW/2}" y="${srcY + srcH/2 - 4}" font-family="Inter, sans-serif" font-size="11" fill="#000" text-anchor="middle" font-weight="500" letter-spacing="1">TOTAL</text>`;
-      svgContent += `<text x="${srcX + srcW/2}" y="${srcY + srcH/2 + 14}" font-family="Inter, sans-serif" font-size="16" fill="#000" text-anchor="middle" font-weight="700">${phpShort(income)}</text>`;
-
-      // Flow ribbons
-      const sumValues = visibleSegs.reduce((s, x) => s + Math.max(0, x.value), 0);
-      const safeSrc = Math.max(1, sumValues);
-      let ySrcCursor = srcY;
-      segGeo.forEach((seg) => {
-        const sh = (seg.value / safeSrc) * srcH;
-        const sy0 = ySrcCursor;
-        const sy1 = ySrcCursor + sh;
-        ySrcCursor += sh;
-        const dy0 = seg.y;
-        const dy1 = seg.y + seg.h;
-        const x0 = srcX + srcW;
-        const x1 = seg.x;
-        const cpx = (x0 + x1) / 2;
-        const path = `M ${x0} ${sy0} C ${cpx} ${sy0}, ${cpx} ${dy0}, ${x1} ${dy0} L ${x1} ${dy1} C ${cpx} ${dy1}, ${cpx} ${sy1}, ${x0} ${sy1} Z`;
-        svgContent += `<path d="${path}" fill="${seg.color}" opacity="0.22" />`;
-      });
-
-      // Destination bars
-      svgContent += `<text x="${dstX + srcW}" y="${srcY - 12}" font-family="Inter, sans-serif" font-size="10" fill="#6e6e73" letter-spacing="2" font-weight="600" text-anchor="end">ALLOCATION</text>`;
-      segGeo.forEach((seg) => {
-        svgContent += `<rect x="${seg.x}" y="${seg.y}" width="${srcW}" height="${seg.h}" fill="${gradMap[seg.key]}" rx="6"/>`;
-        const labelY = seg.y + seg.h / 2;
-        if (seg.h > 44) {
-          svgContent += `<text x="${seg.x + srcW/2}" y="${labelY - 2}" font-family="Inter, sans-serif" font-size="9" fill="#fff" text-anchor="middle" letter-spacing="1.2" font-weight="600" opacity="0.9">${seg.label.toUpperCase()}</text>`;
-          svgContent += `<text x="${seg.x + srcW/2}" y="${labelY + 14}" font-family="Inter, sans-serif" font-size="14" fill="#fff" text-anchor="middle" font-weight="700">${phpShort(seg.value)}</text>`;
-        } else {
-          svgContent += `<text x="${seg.x + srcW + 12}" y="${labelY + 4}" font-family="Inter, sans-serif" font-size="11" fill="#a1a1a6" font-weight="500">${seg.label} · ${phpShort(seg.value)}</text>`;
-        }
-      });
-
-      svg.innerHTML = svgContent;
+      svg.innerHTML = out;
     }
 
-    // ============ COMPOSITION BAR ============
+    // ============ COMPOSITION LEGEND ============
     function updateComposition(income, fixedTotal, variableTotal) {
       const remainingRaw = income - fixedTotal - variableTotal;
       const remaining = Math.max(0, remainingRaw);
       const shortfall = Math.max(0, -remainingRaw);
-      const denom = Math.max(1, fixedTotal + variableTotal + remaining + shortfall);
-      const fPct = (fixedTotal / denom) * 100;
-      const vPct = (variableTotal / denom) * 100;
-      const rPct = (remaining / denom) * 100;
-      const sPct = (shortfall / denom) * 100;
 
-      $("segFixed").style.flexBasis = fPct + "%";
-      $("segVariable").style.flexBasis = vPct + "%";
-      $("segRemaining").style.flexBasis = rPct + "%";
-      $("segShortfall").style.flexBasis = sPct + "%";
-      $("segShortfall").style.display = shortfall > 0 ? "block" : "none";
       $("shortfallLegend").style.display = shortfall > 0 ? "flex" : "none";
 
       $("legFixedVal").textContent = php(fixedTotal);
