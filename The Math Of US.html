@@ -2046,17 +2046,35 @@
       $("allocRhinoPct").textContent = share(w.rhino);
 
       const inputs = [
-        { id: "goalCarSaved", weight: w.car },
-        { id: "goalIphoneSaved", weight: w.iphone },
-        { id: "goalMacSaved", weight: w.mac },
-        { id: "goalRhinoSaved", weight: w.rhino }
+        { id: "goalCarSaved", weight: w.car, target: 530872 },
+        { id: "goalIphoneSaved", weight: w.iphone, target: parseNum($("goalIphoneTarget").value) },
+        { id: "goalMacSaved", weight: w.mac, target: parseNum($("goalMacTarget").value) },
+        { id: "goalRhinoSaved", weight: w.rhino, target: 40000 }
       ];
 
       if (auto) {
-        inputs.forEach(({ id, weight }) => {
-          $(id).value = (totalBank * (weight / sum)).toFixed(2);
-          $(id).readOnly = true;
-        });
+        // Waterfall: split the bank by weight, but cap each goal at its target
+        // and cascade the overflow to the goals that still have room.
+        inputs.forEach(g => { g.alloc = 0; });
+        let pool = totalBank;
+        let guard = 0;
+        while (pool > 0.005 && guard++ < 100) {
+          const open = inputs.filter(g => g.weight > 0 && g.alloc < g.target - 1e-6);
+          if (open.length === 0) break;
+          const wsum = open.reduce((s, g) => s + g.weight, 0);
+          let distributed = 0, capped = false;
+          open.forEach(g => {
+            const wantShare = pool * (g.weight / wsum);
+            const room = g.target - g.alloc;
+            const add = Math.min(wantShare, room);
+            g.alloc += add;
+            distributed += add;
+            if (add < wantShare - 1e-9) capped = true;
+          });
+          pool -= distributed;
+          if (!capped) break; // everyone took their full share — done
+        }
+        inputs.forEach(g => { $(g.id).value = g.alloc.toFixed(2); $(g.id).readOnly = true; });
       } else {
         inputs.forEach(({ id }) => { $(id).readOnly = false; });
       }
