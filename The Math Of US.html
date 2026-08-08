@@ -130,6 +130,8 @@
       -webkit-backdrop-filter: saturate(180%) blur(20px);
       border-bottom: 1px solid var(--border);
       transition: all 0.3s ease;
+      /* Keep the bar below the iPhone notch/status bar when installed as an app */
+      padding-top: env(safe-area-inset-top, 0px);
     }
     .navbar-inner {
       max-width: 1024px;
@@ -546,22 +548,7 @@
     }
     @media (max-width: 700px) { #flowChart { height: 300px; } }
 
-    /* Composition bar — clean Apple-style */
-    .comp-bar {
-      display: flex;
-      width: 100%;
-      height: 8px;
-      border-radius: 100px;
-      overflow: hidden;
-      margin-bottom: 20px;
-      background: var(--surface-3);
-    }
-    .comp-seg { transition: flex-basis 0.6s cubic-bezier(.22,1,.36,1); min-width: 0; }
-    .comp-seg.fixed { background: var(--accent); }
-    .comp-seg.variable { background: var(--warn); }
-    .comp-seg.remaining { background: var(--good); }
-    .comp-seg.shortfall { background: var(--bad); }
-
+    /* Legend under the donut */
     .comp-legend {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
@@ -1094,83 +1081,7 @@
     }
     @media (max-width: 700px) { .timeline-focus { padding: 24px; } }
 
-    /* ============ SYNC ============ */
-    .sync-section {
-      padding: 60px 0;
-    }
-    .sync-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 24px;
-      overflow: hidden;
-    }
-    .sync-toggle {
-      width: 100%;
-      background: none;
-      border: none;
-      padding: 24px 32px;
-      cursor: pointer;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      color: var(--text);
-      font-family: inherit;
-      font-size: 1rem;
-      font-weight: 500;
-      transition: background 0.2s ease;
-    }
-    .sync-toggle:hover { background: var(--surface-2); }
-    .sync-toggle::after {
-      content: "+";
-      font-size: 1.4rem;
-      color: var(--text-secondary);
-      transition: transform 0.3s ease;
-    }
-    .sync-card.open .sync-toggle::after { transform: rotate(45deg); }
-    .sync-content {
-      max-height: 0;
-      overflow: hidden;
-      transition: max-height 0.4s ease;
-    }
-    .sync-card.open .sync-content { max-height: 800px; }
-    .sync-inner {
-      padding: 8px 32px 32px;
-      border-top: 1px solid var(--border);
-    }
-    .sync-fields {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 12px;
-      margin: 20px 0;
-    }
-    @media (max-width: 700px) { .sync-fields { grid-template-columns: 1fr; } }
-    .sync-fields > div { display: flex; flex-direction: column; gap: 6px; }
-    .sync-fields label {
-      font-size: 0.78rem;
-      color: var(--text-secondary);
-      font-weight: 500;
-    }
-    .sync-fields input {
-      padding: 12px 14px;
-      border: 1px solid var(--border);
-      background: var(--surface-2);
-      color: var(--text);
-      border-radius: 10px;
-      font-size: 0.85rem;
-      font-family: inherit;
-      transition: all 0.2s ease;
-    }
-    .sync-fields input:focus {
-      outline: none;
-      border-color: var(--accent);
-      box-shadow: 0 0 0 3px rgba(10, 132, 255, 0.15);
-    }
-    .sync-actions {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-      margin-bottom: 16px;
-    }
+    /* ============ BUTTONS ============ */
     .btn {
       padding: 10px 20px;
       border-radius: 100px;
@@ -1190,22 +1101,6 @@
       color: #fff;
     }
     .btn.primary:hover { background: var(--accent-hover); border-color: var(--accent-hover); }
-    .sync-status {
-      font-size: 0.8rem;
-      color: var(--text-tertiary);
-      margin-bottom: 12px;
-    }
-    .sync-sql {
-      padding: 14px;
-      border: 1px dashed var(--border);
-      border-radius: 10px;
-      background: var(--bg);
-      font-family: "SF Mono", "Menlo", monospace;
-      font-size: 0.72rem;
-      color: var(--text-secondary);
-      line-height: 1.5;
-      word-break: break-all;
-    }
 
     /* ============ FOOTER ============ */
     .footer {
@@ -1238,6 +1133,26 @@
       font-family: "Instrument Serif", serif;
       font-style: italic;
       color: var(--text-secondary);
+    }
+
+    /* ============ SYNC PILL / DUE LINES / BACKUP ============ */
+    .sync-pill { font-size: 0.85rem; }
+    .sync-pill.good { color: var(--good); }
+    .sync-pill.warn { color: var(--warn); }
+    .sync-pill.bad { color: var(--bad); }
+    .ledger-sub {
+      display: block;
+      font-size: 0.78rem;
+      color: var(--text-tertiary);
+      margin-top: 3px;
+      font-variant-numeric: tabular-nums;
+    }
+    .ledger-sub.done { color: var(--good); }
+    .footer-tools {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 24px;
     }
 
     /* ============ ANIMATIONS ============ */
@@ -1373,6 +1288,8 @@
       <p class="hero-sub">Two incomes. Three dogs. One quiet plan to get where we're going.</p>
       <div class="hero-meta">
         <span id="todayLabel">—</span>
+        <span class="hero-divider">·</span>
+        <span id="syncPill" class="sync-pill warn">Saved on this phone only</span>
         <span class="hero-divider">·</span>
         <a href="#snapshot">See the snapshot ↓</a>
       </div>
@@ -1532,14 +1449,20 @@
       <div class="ledger-grid">
         <div class="ledger">
           <div class="ledger-head">
-            <span class="ledger-title">Monthly Bills</span>
+            <div>
+              <span class="ledger-title">Monthly Bills</span>
+              <span class="ledger-sub" id="fixedDueLine"></span>
+            </div>
             <span class="ledger-total ticker" id="fixedTotal">PHP 0.00</span>
           </div>
           <div id="fixedRows"></div>
         </div>
         <div class="ledger">
           <div class="ledger-head">
-            <span class="ledger-title">Everyday Spending</span>
+            <div>
+              <span class="ledger-title">Everyday Spending</span>
+              <span class="ledger-sub" id="varDueLine"></span>
+            </div>
             <span class="ledger-total ticker" id="variableTotal">PHP 0.00</span>
           </div>
           <div id="variableRows"></div>
@@ -1675,41 +1598,13 @@
       </div>
     </section>
 
-    <!-- ============ SYNC ============ -->
-    <section class="sync-section">
-      <div class="sync-card" id="syncCard">
-        <button class="sync-toggle" id="syncToggle">Cloud sync · optional</button>
-        <div class="sync-content">
-          <div class="sync-inner">
-            <p style="font-size: 0.9rem; color: var(--text-secondary); margin-top: 16px;">Only needed if you both want shared data across devices. Local storage works without this.</p>
-            <div class="sync-fields">
-              <div>
-                <label>Supabase URL</label>
-                <input type="text" id="sbUrl" placeholder="https://xxxx.supabase.co" />
-              </div>
-              <div>
-                <label>Anon Key</label>
-                <input type="text" id="sbAnonKey" placeholder="eyJhbGci..." />
-              </div>
-              <div>
-                <label>Household ID</label>
-                <input type="text" id="householdId" placeholder="andrei-erielle-home" />
-              </div>
-            </div>
-            <div class="sync-actions">
-              <button class="btn primary" id="connectSupabaseBtn" type="button">Connect</button>
-              <button class="btn" id="saveNowBtn" type="button">Save now</button>
-              <button class="btn" id="loadNowBtn" type="button">Reload month</button>
-            </div>
-            <div class="sync-status" id="syncStatus">Sync status: Local only.</div>
-            <div class="sync-sql">create table if not exists household_budget_entries (household_id text not null, month_key text not null, payload jsonb not null, updated_at timestamptz not null default now(), primary key (household_id, month_key));</div>
-          </div>
-        </div>
-      </div>
-    </section>
-
     <!-- ============ FOOTER ============ -->
     <footer class="footer">
+      <div class="footer-tools">
+        <button class="btn" id="exportBtn" type="button">Export backup</button>
+        <button class="btn" id="importBtn" type="button">Import backup</button>
+        <input type="file" id="importFile" accept=".json,application/json" style="display:none" />
+      </div>
       <div class="footer-paws">
         <svg class="footer-paw" viewBox="0 0 64 64" fill="#ff6482"><ellipse cx="32" cy="44" rx="14" ry="12"/><ellipse cx="14" cy="26" rx="6" ry="8"/><ellipse cx="50" cy="26" rx="6" ry="8"/><ellipse cx="22" cy="14" rx="5" ry="7"/><ellipse cx="42" cy="14" rx="5" ry="7"/></svg>
         <svg class="footer-paw" viewBox="0 0 64 64" fill="#ffd60a"><ellipse cx="32" cy="44" rx="14" ry="12"/><ellipse cx="14" cy="26" rx="6" ry="8"/><ellipse cx="50" cy="26" rx="6" ry="8"/><ellipse cx="22" cy="14" rx="5" ry="7"/><ellipse cx="42" cy="14" rx="5" ry="7"/></svg>
@@ -1743,17 +1638,24 @@
     ];
 
     // ============ STATE ============
-    let supabaseClient = null;
     let remoteEnabled = false;
     let saveTimer = null;
     let isHydrating = false;
+    let monthDirty = false;   // the visible month has unsaved edits
+    let goalsDirty = false;   // the goals card has unsaved edits
+    let currentMonthKey = ""; // the month the form currently shows (set after each load)
     const animatedValues = {};
-    const SHOW_SYNC_PANEL = false;
-    const DEFAULT_SUPABASE_CONFIG = {
+    // Same Supabase project as before. If it was paused for inactivity, restoring it
+    // from the dashboard makes these constants valid again — no code change needed.
+    // Table: create table if not exists household_budget_entries (household_id text not null,
+    //   month_key text not null, payload jsonb not null, updated_at timestamptz not null default now(),
+    //   primary key (household_id, month_key));
+    const SUPABASE = {
       url: "https://wvknqiljvclrrspqhqmf.supabase.co",
       anonKey: "sb_publishable_HfrME6xLGS_t8GXinI0_iA_7E9tlZvb",
       householdId: "the-math-of-us"
     };
+    const GOALS_KEY = "_goals"; // goals live in the same table under this month_key
 
     // ============ HELPERS ============
     const $ = (id) => document.getElementById(id);
@@ -1925,6 +1827,36 @@
       $("variableTotal").textContent = php(variableTotal);
     }
 
+    // ============ STILL-DUE LINES ============
+    // Ticking a bill as paid now moves a real number, so the tap pays you back.
+    function updateDueLines() {
+      const tally = (items, type) => {
+        let due = 0, paid = 0;
+        items.forEach(it => {
+          const amt = parseNum($(`${type}-${it.key}-amt`)?.value || 0);
+          if ($(`${type}-${it.key}-paid`)?.checked) paid++;
+          else due += amt;
+        });
+        return { due, paid, total: items.length };
+      };
+      const f = tally(fixedDefaults, "fixed");
+      const fEl = $("fixedDueLine");
+      if (fEl) {
+        fEl.textContent = f.paid === f.total
+          ? "All bills settled 🎉"
+          : `Still due: ${php(f.due)} · ${f.paid} of ${f.total} paid`;
+        fEl.classList.toggle("done", f.paid === f.total);
+      }
+      const v = tally(variableDefaults, "var");
+      const vEl = $("varDueLine");
+      if (vEl) {
+        vEl.textContent = v.paid === v.total
+          ? "Everything covered 🎉"
+          : `Unspent budget: ${php(v.due)} · ${v.paid} of ${v.total} done`;
+        vEl.classList.toggle("done", v.paid === v.total);
+      }
+    }
+
     // ============ ANIMATED COUNTER ============
     function animateValue(elId, target, durationMs = 800) {
       const el = $(elId);
@@ -2036,6 +1968,7 @@
 
       drawFlow(combined, fixedTotal, variableTotal);
       updateComposition(combined, fixedTotal, variableTotal);
+      updateDueLines();
 
       const focus = $("timelineFocus");
       const extra2Y = 10034.41, extra1Y = 32155.42;
@@ -2108,25 +2041,41 @@
     }
 
     // ============ PERSISTENCE ============
+    // Month records hold income + expenses. Goals are cross-month state and are
+    // stored separately (see getGoalsPayload) so a new month never resets them.
     function getCurrentPayload() {
       return {
         andreiW1: $("andreiW1").value, andreiW2: $("andreiW2").value, andreiW3: $("andreiW3").value, andreiW4: $("andreiW4").value, andreiW5: $("andreiW5").value,
         erielleW1: $("erielleW1").value, erielleW2: $("erielleW2").value, erielleW3: $("erielleW3").value, erielleW4: $("erielleW4").value, erielleW5: $("erielleW5").value,
-        goals: {
-          bankTotal: $("goalBankTotal").value,
-          auto: $("autoAllocateGoals").checked,
-          allocCar: $("allocCar").value,
-          allocIphone: $("allocIphone").value,
-          allocMac: $("allocMac").value,
-          allocRhino: $("allocRhino").value,
-          car: $("goalCarSaved").value,
-          iphoneT: $("goalIphoneTarget").value, iphoneS: $("goalIphoneSaved").value,
-          macT: $("goalMacTarget").value, macS: $("goalMacSaved").value,
-          rhinoS: $("goalRhinoSaved").value
-        },
         fixed: fixedDefaults.map(x => ({ key: x.key, amount: $(`fixed-${x.key}-amt`).value, paid: $(`fixed-${x.key}-paid`).checked })),
         variable: variableDefaults.map(x => ({ key: x.key, amount: $(`var-${x.key}-amt`).value, paid: $(`var-${x.key}-paid`).checked }))
       };
+    }
+    function getGoalsPayload() {
+      return {
+        bankTotal: $("goalBankTotal").value,
+        auto: $("autoAllocateGoals").checked,
+        allocCar: $("allocCar").value,
+        allocIphone: $("allocIphone").value,
+        allocMac: $("allocMac").value,
+        allocRhino: $("allocRhino").value,
+        car: $("goalCarSaved").value,
+        iphoneT: $("goalIphoneTarget").value, iphoneS: $("goalIphoneSaved").value,
+        macT: $("goalMacTarget").value, macS: $("goalMacSaved").value,
+        rhinoS: $("goalRhinoSaved").value
+      };
+    }
+    function applyGoalsToForm(g) {
+      if (!g) return;
+      const setVal = (id, v) => { const el = $(id); if (el && v != null) el.value = v; };
+      setVal("goalBankTotal", g.bankTotal);
+      if (g.auto != null) $("autoAllocateGoals").checked = !!g.auto;
+      setVal("allocCar", g.allocCar); setVal("allocIphone", g.allocIphone);
+      setVal("allocMac", g.allocMac); setVal("allocRhino", g.allocRhino);
+      setVal("goalCarSaved", g.car);
+      setVal("goalIphoneTarget", g.iphoneT); setVal("goalIphoneSaved", g.iphoneS);
+      setVal("goalMacTarget", g.macT); setVal("goalMacSaved", g.macS);
+      setVal("goalRhinoSaved", g.rhinoS);
     }
 
     function applyPayloadToForm(data) {
@@ -2134,16 +2083,8 @@
       const setVal = (id, v) => { const el = $(id); if (el && v != null) el.value = v; };
       setVal("andreiW1", data.andreiW1); setVal("andreiW2", data.andreiW2); setVal("andreiW3", data.andreiW3); setVal("andreiW4", data.andreiW4); setVal("andreiW5", data.andreiW5);
       setVal("erielleW1", data.erielleW1); setVal("erielleW2", data.erielleW2); setVal("erielleW3", data.erielleW3); setVal("erielleW4", data.erielleW4); setVal("erielleW5", data.erielleW5);
-      if (data.goals) {
-        setVal("goalBankTotal", data.goals.bankTotal);
-        if (data.goals.auto != null) $("autoAllocateGoals").checked = !!data.goals.auto;
-        setVal("allocCar", data.goals.allocCar); setVal("allocIphone", data.goals.allocIphone);
-        setVal("allocMac", data.goals.allocMac); setVal("allocRhino", data.goals.allocRhino);
-        setVal("goalCarSaved", data.goals.car);
-        setVal("goalIphoneTarget", data.goals.iphoneT); setVal("goalIphoneSaved", data.goals.iphoneS);
-        setVal("goalMacTarget", data.goals.macT); setVal("goalMacSaved", data.goals.macS);
-        setVal("goalRhinoSaved", data.goals.rhinoS);
-      }
+      // Note: data.goals from old-format records is intentionally ignored here —
+      // goals are global now and hydrate through applyGoalsToForm/loadGoals.
       (data.fixed || []).forEach(item => {
         const amt = $(`fixed-${item.key}-amt`), paid = $(`fixed-${item.key}-paid`);
         if (amt) amt.value = item.amount;
@@ -2168,141 +2109,345 @@
       });
     }
 
-    function scheduleSave() {
-      if (saveTimer) clearTimeout(saveTimer);
-      saveTimer = setTimeout(saveMonthData, 450);
+    // Compare timestamps numerically — local uses "...Z", PostgREST returns
+    // "...+00:00", so lexicographic comparison would be wrong on the suffix.
+    const ts = (s) => { const t = Date.parse(s || ""); return Number.isFinite(t) ? t : 0; };
+
+    // Local records are wrapped with a timestamp so two phones can merge honestly.
+    // Old bare payloads (from earlier versions) are read transparently.
+    function readLocal(key) {
+      try {
+        const raw = localStorage.getItem(key);
+        if (!raw) return null;
+        const parsed = JSON.parse(raw);
+        if (parsed && parsed.__v === 2) return parsed;
+        return { __v: 2, savedAt: null, data: parsed };
+      } catch (_) { return null; }
+    }
+    function writeLocal(key, data, savedAt) {
+      try {
+        localStorage.setItem(key, JSON.stringify({ __v: 2, savedAt: savedAt || new Date().toISOString(), data }));
+        return true;
+      } catch (_) {
+        setSyncPill("storage-error");
+        return false;
+      }
     }
 
-    async function saveMonthData() {
-      const monthKey = $("monthKey").value;
-      if (!monthKey) return;
-      const payload = getCurrentPayload();
-      localStorage.setItem("budget-" + monthKey, JSON.stringify(payload));
-      if (!remoteEnabled || !supabaseClient) return;
-      const cfg = getSupabaseSettings();
-      if (!cfg.householdId) return;
-      const { error } = await supabaseClient
-        .from("household_budget_entries")
-        .upsert({ household_id: cfg.householdId, month_key: monthKey, payload, updated_at: new Date().toISOString() }, { onConflict: "household_id,month_key" });
-      if (error) setSyncStatus(`Cloud save failed, local backup kept: ${error.message}`);
-      else setSyncStatus(`Cloud synced for ${monthKey} at ${new Date().toLocaleTimeString()}.`);
+    function scheduleSave() {
+      if (saveTimer) clearTimeout(saveTimer);
+      saveTimer = setTimeout(persistNow, 450);
     }
+
+    // Synchronous local write (+ background cloud push). Safe to call any time:
+    // does nothing unless the user actually edited something.
+    function persistNow() {
+      if (saveTimer) { clearTimeout(saveTimer); saveTimer = null; }
+      const now = new Date().toISOString();
+      // A failed cloud push demotes remoteEnabled so the reconnect loop
+      // re-runs reconciliation later — the edit is never silently stranded.
+      const pushFailed = () => { remoteEnabled = false; setSyncPill("offline"); };
+      if (monthDirty && currentMonthKey) {
+        const payload = getCurrentPayload();
+        if (writeLocal("budget-" + currentMonthKey, payload, now)) monthDirty = false;
+        if (remoteEnabled) {
+          sbUpsert(currentMonthKey, payload, now).then(() => setSyncPill("synced")).catch(pushFailed);
+        }
+      }
+      if (goalsDirty) {
+        const goals = getGoalsPayload();
+        if (writeLocal("goals-global", goals, now)) goalsDirty = false;
+        if (remoteEnabled) {
+          sbUpsert(GOALS_KEY, goals, now).then(() => setSyncPill("synced")).catch(pushFailed);
+        }
+      }
+    }
+
+    // Find the most recent saved month before the given one (for carry-forward).
+    function latestMonthBefore(monthKey) {
+      let bestKey = null;
+      for (let i = 0; i < localStorage.length; i++) {
+        const k = localStorage.key(i);
+        const m = k && k.match(/^budget-(\d{4}-\d{2})$/);
+        if (m && m[1] < monthKey && (!bestKey || m[1] > bestKey)) bestKey = m[1];
+      }
+      return bestKey ? readLocal("budget-" + bestKey) : null;
+    }
+
+    function resetIncomeToDefaults() {
+      ["andrei", "erielle"].forEach(p => ["W1","W2","W3","W4","W5"].forEach(w => {
+        const el = $(p + w);
+        if (el) el.value = el.defaultValue;
+      }));
+    }
+
+    // Guards for async loads: a newer load invalidates an older in-flight one,
+    // and any user edit that lands mid-load aborts the hydration so keystrokes
+    // are never overwritten by slow network responses.
+    let loadSeq = 0;
+    let editCounter = 0;
 
     async function loadMonthData() {
       const monthKey = $("monthKey").value;
-      let loaded = false;
+      const seq = ++loadSeq;
+
+      // 1) Local-first, fully synchronous: the form is correct before any
+      // network request, so slow responses can never race user keystrokes.
       isHydrating = true;
-      if (remoteEnabled && supabaseClient) {
-        const cfg = getSupabaseSettings();
-        const { data, error } = await supabaseClient
-          .from("household_budget_entries")
-          .select("payload,updated_at")
-          .eq("household_id", cfg.householdId)
-          .eq("month_key", monthKey)
-          .maybeSingle();
-        if (!error && data && data.payload) {
-          applyPayloadToForm(data.payload);
-          localStorage.setItem("budget-" + monthKey, JSON.stringify(data.payload));
-          loaded = true;
-          setSyncStatus(`Loaded ${monthKey} from cloud.`);
+      const localRec = readLocal("budget-" + monthKey);
+      if (localRec && localRec.data) {
+        applyPayloadToForm(localRec.data);
+      } else {
+        // First time this month is opened: carry the latest earlier month forward
+        // so nothing needs re-typing; only the paid flags reset. Nothing is saved
+        // until the user actually edits something.
+        const prev = latestMonthBefore(monthKey);
+        if (prev && prev.data) {
+          const copy = JSON.parse(JSON.stringify(prev.data));
+          (copy.fixed || []).forEach(x => { x.paid = false; });
+          (copy.variable || []).forEach(x => { x.paid = false; });
+          applyPayloadToForm(copy);
+        } else {
+          resetIncomeToDefaults();
         }
       }
-      if (!loaded) {
-        const raw = localStorage.getItem("budget-" + monthKey);
-        if (raw) { try { applyPayloadToForm(JSON.parse(raw)); } catch (e) { console.error("Load failed", e); } }
+      currentMonthKey = monthKey;
+      monthDirty = false;
+      isHydrating = false;
+
+      // 2) Remote refresh — an optional refinement, applied only if nothing
+      // moved underneath it (no newer load, no user edit, no pending save).
+      if (!remoteEnabled) return;
+      const edits0 = editCounter;
+      try {
+        const rows = await sbSelect(`month_key=eq.${monthKey}&select=payload,updated_at`);
+        if (seq !== loadSeq || editCounter !== edits0 || monthDirty) return;
+        if (rows.length && rows[0].payload) {
+          const nowLocal = readLocal("budget-" + monthKey);
+          const remoteAt = rows[0].updated_at || "";
+          if (nowLocal && ts(nowLocal.savedAt) > ts(remoteAt)) {
+            // This phone has the newer copy — push it up instead.
+            sbUpsert(monthKey, nowLocal.data, nowLocal.savedAt).catch(() => {});
+          } else {
+            isHydrating = true;
+            applyPayloadToForm(rows[0].payload);
+            isHydrating = false;
+            writeLocal("budget-" + monthKey, rows[0].payload, remoteAt || undefined);
+            updateAll();
+          }
+        }
+      } catch (_) {
+        // Select failure = backend unreachable again. Demote so the reconnect
+        // loop re-runs a full reconciliation later.
+        remoteEnabled = false;
+        setSyncPill("offline");
+      }
+    }
+
+    async function loadGoals() {
+      // 1) Local-first, synchronous.
+      isHydrating = true;
+      const localRec = readLocal("goals-global");
+      if (localRec && localRec.data) {
+        applyGoalsToForm(localRec.data);
+      } else {
+        // One-time migration: goals used to live inside each month's record.
+        // savedAt stays null on purpose — the data is of unknown age, so any
+        // real cloud copy must win over it during reconciliation.
+        const legacy = latestGoalsFromMonths();
+        if (legacy) {
+          applyGoalsToForm(legacy);
+          try { localStorage.setItem("goals-global", JSON.stringify({ __v: 2, savedAt: null, data: legacy })); } catch (_) {}
+        }
       }
       isHydrating = false;
+
+      // 2) Guarded remote refresh.
+      if (!remoteEnabled) return;
+      const edits0 = editCounter;
+      try {
+        const rows = await sbSelect(`month_key=eq.${GOALS_KEY}&select=payload,updated_at`);
+        if (editCounter !== edits0 || goalsDirty) return;
+        if (rows.length && rows[0].payload) {
+          const nowLocal = readLocal("goals-global");
+          const remoteAt = rows[0].updated_at || "";
+          if (nowLocal && ts(nowLocal.savedAt) > ts(remoteAt)) {
+            sbUpsert(GOALS_KEY, nowLocal.data, nowLocal.savedAt).catch(() => {});
+          } else {
+            isHydrating = true;
+            applyGoalsToForm(rows[0].payload);
+            isHydrating = false;
+            writeLocal("goals-global", rows[0].payload, remoteAt || undefined);
+            updateAll();
+          }
+        }
+      } catch (_) {
+        remoteEnabled = false;
+        setSyncPill("offline");
+      }
     }
 
-    // ============ SUPABASE ============
-    function setSyncStatus(msg) {
-      const statusEl = $("syncStatus");
-      if (statusEl) statusEl.textContent = `Sync status: ${msg}`;
+    function latestGoalsFromMonths() {
+      const keys = [];
+      for (let i = 0; i < localStorage.length; i++) {
+        const k = localStorage.key(i);
+        if (k && /^budget-\d{4}-\d{2}$/.test(k)) keys.push(k);
+      }
+      keys.sort().reverse();
+      for (const k of keys) {
+        const rec = readLocal(k);
+        if (rec && rec.data && rec.data.goals) return rec.data.goals;
+      }
+      return null;
     }
-    function getSupabaseSettings() {
-      const urlInput = $("sbUrl");
-      const keyInput = $("sbAnonKey");
-      const householdInput = $("householdId");
+
+    // ============ CLOUD SYNC (plain fetch — no client library needed) ============
+    function sbHeaders() {
       return {
-        url: ((urlInput && urlInput.value) || DEFAULT_SUPABASE_CONFIG.url || "").trim(),
-        anonKey: ((keyInput && keyInput.value) || DEFAULT_SUPABASE_CONFIG.anonKey || "").trim(),
-        householdId: ((householdInput && householdInput.value) || DEFAULT_SUPABASE_CONFIG.householdId || "").trim()
+        "apikey": SUPABASE.anonKey,
+        "Authorization": "Bearer " + SUPABASE.anonKey,
+        "Content-Type": "application/json"
       };
     }
-    function saveSupabaseSettingsLocally() {
-      localStorage.setItem("supabase-settings", JSON.stringify(getSupabaseSettings()));
+    // 12s timeout so a half-awake project can never pin a request (and with it
+    // the `connecting` guard) forever.
+    function sbTimeout() {
+      try { return AbortSignal.timeout(12000); } catch (_) { return undefined; }
     }
-    function loadSupabaseSettingsLocally() {
-      const raw = localStorage.getItem("supabase-settings");
-      if (!raw) return;
-      try {
-        const cfg = JSON.parse(raw);
-        const urlInput = $("sbUrl");
-        const keyInput = $("sbAnonKey");
-        const householdInput = $("householdId");
-        if (urlInput) urlInput.value = cfg.url || "";
-        if (keyInput) keyInput.value = cfg.anonKey || "";
-        if (householdInput) householdInput.value = cfg.householdId || "";
-      } catch (_) {}
+    async function sbSelect(query) {
+      const res = await fetch(
+        `${SUPABASE.url}/rest/v1/household_budget_entries?household_id=eq.${SUPABASE.householdId}&${query}`,
+        { headers: sbHeaders(), signal: sbTimeout() }
+      );
+      if (!res.ok) throw new Error("HTTP " + res.status);
+      return res.json();
     }
-    function hasSupabaseSettings() {
-      const cfg = getSupabaseSettings();
-      return !!(cfg.url && cfg.anonKey && cfg.householdId);
-    }
-    // Load the Supabase client library on demand, without blocking page render.
-    let supabaseLoadPromise = null;
-    function ensureSupabaseLoaded() {
-      if (window.supabase && window.supabase.createClient) return Promise.resolve();
-      if (supabaseLoadPromise) return supabaseLoadPromise;
-      supabaseLoadPromise = new Promise((resolve, reject) => {
-        const s = document.createElement("script");
-        s.src = "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2";
-        s.async = true;
-        const timer = setTimeout(() => reject(new Error("Supabase library load timed out")), 8000);
-        s.onload = () => { clearTimeout(timer); resolve(); };
-        s.onerror = () => { clearTimeout(timer); reject(new Error("Supabase library failed to load")); };
-        document.head.appendChild(s);
-      });
-      return supabaseLoadPromise;
+    async function sbUpsert(monthKey, payload, savedAt) {
+      const res = await fetch(
+        `${SUPABASE.url}/rest/v1/household_budget_entries?on_conflict=household_id,month_key`,
+        {
+          method: "POST",
+          headers: { ...sbHeaders(), "Prefer": "resolution=merge-duplicates" },
+          keepalive: true, // lets the last flush survive the app being backgrounded
+          signal: sbTimeout(),
+          body: JSON.stringify({
+            household_id: SUPABASE.householdId,
+            month_key: monthKey,
+            payload,
+            updated_at: savedAt || new Date().toISOString()
+          })
+        }
+      );
+      if (!res.ok) throw new Error("HTTP " + res.status);
     }
 
-    async function connectSupabase() {
-      try {
-        await ensureSupabaseLoaded();
-      } catch (e) {
-        setSyncStatus(e.message + " — staying on local storage.");
-        return;
+    function setSyncPill(state) {
+      const el = $("syncPill");
+      if (!el) return;
+      const map = {
+        "synced": ["Synced for both of you", "good"],
+        "offline": ["Saved on this phone only", "warn"],
+        "storage-error": ["Storage full — export a backup!", "bad"]
+      };
+      const [text, cls] = map[state] || map["offline"];
+      el.textContent = text;
+      el.className = "sync-pill " + cls;
+    }
+
+    // After (re)connecting: push up anything the cloud lacks or has older,
+    // pull down months this phone has never seen. Heals both phones after
+    // any stretch of offline use — including the whole dead-backend era.
+    async function reconcileWithCloud(remoteRows) {
+      const remoteMap = {};
+      (remoteRows || []).forEach(r => { remoteMap[r.month_key] = r.updated_at || ""; });
+      const localKeys = [];
+      for (let i = 0; i < localStorage.length; i++) {
+        const k = localStorage.key(i);
+        if (k && (/^budget-\d{4}-\d{2}$/.test(k) || k === "goals-global")) localKeys.push(k);
       }
-      if (!window.supabase || !window.supabase.createClient) { setSyncStatus("Supabase library failed to load."); return; }
-      const cfg = getSupabaseSettings();
-      if (!cfg.url || !cfg.anonKey || !cfg.householdId) { setSyncStatus("Enter URL, anon key, and household ID first."); return; }
+      for (const k of localKeys) {
+        const rec = readLocal(k);
+        if (!rec || !rec.data) continue;
+        const mk = k === "goals-global" ? GOALS_KEY : k.slice(7);
+        const remoteAt = remoteMap[mk];
+        if (remoteAt === undefined || ts(rec.savedAt) > ts(remoteAt)) {
+          // Records of unknown age go up with an epoch timestamp so any real,
+          // dated write from either phone will beat them later.
+          try { await sbUpsert(mk, rec.data, rec.savedAt || "1970-01-01T00:00:00.000Z"); } catch (_) {}
+        }
+      }
+      for (const mk in remoteMap) {
+        if (mk === GOALS_KEY || !/^\d{4}-\d{2}$/.test(mk)) continue;
+        if (!readLocal("budget-" + mk)) {
+          try {
+            const rows = await sbSelect(`month_key=eq.${mk}&select=payload,updated_at`);
+            if (rows.length && rows[0].payload) writeLocal("budget-" + mk, rows[0].payload, rows[0].updated_at || undefined);
+          } catch (_) {}
+        }
+      }
+    }
+
+    let connecting = false;
+    async function connectSupabase() {
+      if (connecting || remoteEnabled) return;
+      connecting = true;
       try {
-        supabaseClient = window.supabase.createClient(cfg.url, cfg.anonKey);
-        const probe = await supabaseClient.from("household_budget_entries").select("month_key").eq("household_id", cfg.householdId).limit(1);
-        if (probe.error) throw probe.error;
+        persistNow(); // flush pending edits first so reconciliation sees them
+        const rows = await sbSelect("select=month_key,updated_at");
         remoteEnabled = true;
-        saveSupabaseSettingsLocally();
-        setSyncStatus("Connected. Cloud sync is active.");
+        setSyncPill("synced");
+        await reconcileWithCloud(rows);
+        await loadGoals();
         await loadMonthData();
         updateAll();
-      } catch (err) {
+      } catch (_) {
         remoteEnabled = false;
-        setSyncStatus(`Connection failed: ${err.message}`);
+        setSyncPill("offline");
+      } finally {
+        connecting = false;
       }
+    }
+
+    // Keep trying quietly: reconnects by itself the moment the project wakes up,
+    // refreshes with the partner's latest edits whenever the app comes back to
+    // the foreground, and never loses the last keystrokes when the app is closed.
+    function setupSyncLifecycle() {
+      document.addEventListener("visibilitychange", async () => {
+        if (document.visibilityState === "hidden") { persistNow(); return; }
+        if (!remoteEnabled) { connectSupabase(); return; }
+        if (!monthDirty && !goalsDirty) {
+          try { await loadGoals(); await loadMonthData(); updateAll(); } catch (_) {}
+        }
+      });
+      window.addEventListener("pagehide", persistNow);
+      setInterval(() => { if (!remoteEnabled) connectSupabase(); }, 5 * 60 * 1000);
     }
 
     // ============ BIND ============
+    const isGoalControl = (el) => /^(goal|alloc)/.test(el.id) || el.id === "autoAllocateGoals";
+    function onFormInput(e) {
+      const t = e.target;
+      if (t && t.type !== "hidden" && t.type !== "file") {
+        editCounter++; // any real edit invalidates in-flight remote hydrations
+        if (!isHydrating) {
+          if (isGoalControl(t)) goalsDirty = true; else monthDirty = true;
+        }
+      }
+      updateAll();
+    }
     function bindInputs() {
       document.querySelectorAll("input").forEach(input => {
+        if (input.type === "hidden" || input.type === "file") return;
         if (!input.dataset.boundBudget) {
-          input.addEventListener("input", updateAll);
-          input.addEventListener("change", updateAll);
+          input.addEventListener("input", onFormInput);
+          input.addEventListener("change", onFormInput);
           input.dataset.boundBudget = "1";
         }
       });
       const monthKey = $("monthKey");
       if (monthKey && !monthKey.dataset.boundMonth) {
         monthKey.addEventListener("change", async () => {
+          persistNow(); // flush any pending edit under the month we're leaving
           renderRows("fixedRows", fixedDefaults, "fixed");
           renderRows("variableRows", variableDefaults, "var");
           bindInputs();
@@ -2311,19 +2456,60 @@
         });
         monthKey.dataset.boundMonth = "1";
       }
-      const bind = (id, fn) => {
-        const el = $(id);
-        if (el && !el.dataset.bound) { el.addEventListener("click", fn); el.dataset.bound = "1"; }
-      };
-      bind("connectSupabaseBtn", connectSupabase);
-      bind("saveNowBtn", saveMonthData);
-      bind("loadNowBtn", async () => { await loadMonthData(); updateAll(); });
+    }
 
-      const syncToggle = $("syncToggle");
-      if (syncToggle && !syncToggle.dataset.bound) {
-        syncToggle.addEventListener("click", () => $("syncCard").classList.toggle("open"));
-        syncToggle.dataset.bound = "1";
+    // ============ BACKUP (export / import) ============
+    function collectAllData() {
+      const out = { app: "the-math-of-us", exportedAt: new Date().toISOString(), entries: {} };
+      for (let i = 0; i < localStorage.length; i++) {
+        const k = localStorage.key(i);
+        if (k && (/^budget-\d{4}-\d{2}$/.test(k) || k === "goals-global")) {
+          try { out.entries[k] = JSON.parse(localStorage.getItem(k)); } catch (_) {}
+        }
       }
+      return out;
+    }
+    function setupBackup() {
+      $("exportBtn")?.addEventListener("click", () => {
+        persistNow();
+        const blob = new Blob([JSON.stringify(collectAllData(), null, 2)], { type: "application/json" });
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = "math-of-us-backup-" + new Date().toISOString().slice(0, 10) + ".json";
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+      });
+      $("importBtn")?.addEventListener("click", () => $("importFile")?.click());
+      $("importFile")?.addEventListener("change", async (e) => {
+        const file = e.target.files && e.target.files[0];
+        if (!file) return;
+        persistNow(); // don't let an unsaved edit get lost under the import
+        try {
+          const parsed = JSON.parse(await file.text());
+          const entries = parsed.entries || {};
+          const names = Object.keys(entries).filter(k => /^budget-\d{4}-\d{2}$/.test(k) || k === "goals-global");
+          if (!names.length) { alert("No budget data found in that file."); return; }
+          if (!confirm(`Import ${names.length} record(s) from this backup? Newer copies already on this phone are kept.`)) return;
+          names.forEach(k => {
+            const raw = entries[k];
+            const incoming = raw && raw.__v === 2 ? raw : { __v: 2, savedAt: null, data: raw };
+            const existing = readLocal(k);
+            // An undated backup entry can never beat a dated local record.
+            if (existing && existing.savedAt && (!incoming.savedAt || ts(existing.savedAt) >= ts(incoming.savedAt))) return;
+            try { localStorage.setItem(k, JSON.stringify(incoming)); } catch (_) {}
+          });
+          await loadGoals();
+          await loadMonthData();
+          updateAll();
+          if (remoteEnabled) { remoteEnabled = false; connectSupabase(); } // re-reconcile with the cloud
+          alert("Backup imported.");
+        } catch (err) {
+          alert("Could not read that backup file: " + err.message);
+        }
+        e.target.value = "";
+      });
     }
 
     // ============ EXPERIENCE ============
@@ -2380,23 +2566,21 @@
       renderRows("fixedRows", fixedDefaults, "fixed");
       renderRows("variableRows", variableDefaults, "var");
       bindInputs();
-      if (!SHOW_SYNC_PANEL) {
-        document.querySelector(".sync-section")?.remove();
-      }
-      loadSupabaseSettingsLocally();
+      setSyncPill("offline");
 
       // Render immediately from local storage so the page never waits on the network.
+      await loadGoals();
       await loadMonthData();
       updateTimeline();
       updateAll();
       setupExperience();
       setupInteractiveBg();
       setupPaws();
+      setupBackup();
+      setupSyncLifecycle();
 
-      // Connect to the cloud in the background; if it succeeds it reloads + redraws.
-      if (hasSupabaseSettings()) {
-        connectSupabase().catch((e) => setSyncStatus("Cloud sync unavailable: " + e.message));
-      }
+      // Connect in the background; reconnects by itself once the project is awake.
+      connectSupabase();
     }
     // Never let an unexpected error leave the page stuck on the loading screen.
     window.setTimeout(() => $("pageLoader")?.classList.add("hidden"), 2500);
